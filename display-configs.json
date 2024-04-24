@@ -1,0 +1,49 @@
+[
+  {
+    "title": "iphone-se",
+    "dimensions": [320, 568],
+    "insets": [19,10,50],
+    "phone": true
+  },
+  {
+    "title": "iphone-se2",
+    "dimensions": [375, 667],
+    "insets": [27,10,45],
+    "phone": true
+  },
+  {
+    "title": "iphone-12",
+    "dimensions": [390, 844],
+    "insets": [26,29,98],
+    "phone": true
+  },
+  {
+    "title": "iphone-12-max",
+    "dimensions": [430, 932],
+    "insets": [30,32,108],
+    "phone": true
+  },
+  {
+    "title": "ipad-mini-5",
+    "dimensions": [1024, 768],
+    "insets": [122,45,52],
+    "l-insets": [122,35,66],
+    "phone": false
+  },
+  {
+    "title": "ipad-mini-6",
+    "dimensions": [1133, 744],
+    "insets": [111,],
+    "phone": false
+  }, {
+    "title": "ipad-air-4",
+    "dimensions": [1180, 820],
+    "insets": [],
+    "phone": false
+  },{
+    "title": "ipad-pro-11-2018",
+    "dimensions": [1194, 834],
+    "insets": [],
+    "phone": false
+  }
+]

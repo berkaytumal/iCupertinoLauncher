@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flexbox Grid</title>
+    <style>
+        .flex-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+
+        .flex-item {
+            width: calc(100% / 4);
+            /* Change 4 to the number of columns you want */
+            height: 100px;
+            background-color: #ccc;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="flex-container" id="flexContainer">
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+        function createFlexboxGrid(columns,rows) {
+            // Clear any existing content
+            $('table').remove();
+
+            function createColumn(curRow) {
+                var string = ""
+                for (let i = 1; i <= columns; i++) {
+                    string += `<th>${i + (curRow-1) * columns}</th>`
+                }
+                return string
+            }
+            function createRow() {
+                var string = ""
+                for (let i = 1; i <= rows; i++) {
+                    string += `<tr>${createColumn(i)}</tr>`
+                }
+                return string
+            }
+            $("body").append($.parseHTML(`<table>${createRow()}</table>`))
+        }
+
+        // Example usage:
+        $(document).ready(function () {
+            createFlexboxGrid(10, 100); // Creates a grid with 3 rows and 4 columns
+        });
+    </script>
+
+</body>
+
+</html>

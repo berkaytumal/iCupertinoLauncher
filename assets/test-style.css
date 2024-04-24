@@ -1,0 +1,73 @@
+:root{
+  user-select: none;
+  user-drag:none;
+  -webkit-user-select: none;
+  -webkit-user-drag: none;
+  touch-action: none;
+}
+html,
+body {
+  display: block;
+  position: fixed;
+  left: 0px;
+  top: 0px;
+  width: 100%;
+  height: 100%;
+  padding: 0px;
+  margin: 0px;
+}
+html {
+  overflow: hidden;
+}
+body {
+  overflow-y: hidden;
+  overflow-x: scroll;
+  white-space: nowrap;
+}
+.view {
+  position: absolute;
+  pointer-events: all;
+  z-index: -1;
+}
+#d_phone {
+  width: 473px;
+  height: 932px;
+  -webkit-mask: url(drawable/bezels/iphone_alpha.png);
+}
+#d_phone > .view {
+  --statusbar:60px;
+  left: 40px;
+  top: calc(40px + var(--statusbar));
+  width: 393px;
+  height: calc(852px - var(--statusbar));
+}
+#d_tablet {
+  width: 1306px;
+  height: 945px;
+  -webkit-mask: url(drawable/bezels/ipad_alpha.png);
+}
+#d_tablet > .view {
+  --statusbar:24px;
+  left: 55px;
+  top: calc(55px + var(--statusbar));
+  width: 1196px;
+  height: calc(835px - var(--statusbar));
+}
+.device {
+  position: relative;
+  z-index: 10;
+  pointer-events: none;
+  display: inline-block;
+  overflow: hidden;
+}
+.device > *:not(.bezel) {
+  pointer-events: all;
+}
+
+.device img {
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  width: 100%;
+  height: 100%;
+}

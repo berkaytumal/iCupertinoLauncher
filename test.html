@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="/assets/test-style.css">
+</head>
+
+<body>
+    <button style="position: fixed;bottom: 0px;left: 0px;width: 100%;height: 100px;"
+        onclick='$("body").toggleClass("rotate")'>Rotate</button>
+
+    <div id="d_phone" class="device">
+        <img class="bezel" src="assets/drawable/bezels/iphone_color.png">
+        <iframe src="index.html?tablet=false&emudata=0" class="view" frameborder="0"
+            sandbox="allow-downloads allow-forms allow-modals allow-orientation-lock allow-pointer-lock allow-popups allow-popups-to-escape-sandbox allow-presentation allow-same-origin allow-scripts allow-storage-access-by-user-activation allow-top-navigation allow-top-navigation-by-user-activation allow-top-navigation-to-custom-protocols"></iframe>
+    </div>
+
+    <div id="d_tablet" class="device">
+        <img class="bezel" src="assets/drawable/bezels/ipad_color.png">
+        <iframe src="index.html?tablet=true&emudata=1" class="view" frameborder="0"
+            sandbox="allow-downloads allow-forms allow-modals allow-orientation-lock allow-pointer-lock allow-popups allow-popups-to-escape-sandbox allow-presentation allow-same-origin allow-scripts allow-storage-access-by-user-activation allow-top-navigation allow-top-navigation-by-user-activation allow-top-navigation-to-custom-protocols"></iframe>
+    </div>
+    <script src="/node_modules/jquery/dist/jquery.js"></script>
+    <style>
+        body.rotate #d_tablet {
+            transform: rotate(90deg) translateY(-950px);
+            transform-origin: 0% 0%;
+        }
+
+        body.rotate #d_tablet>iframe {
+            transform: rotate(-90deg);
+            height: calc(1196px - var(--statusbar));
+            width: 835px;
+            left: 247px;
+            top: -113px;
+        }
+    </style>
+    <button style="
+    position: fixed;
+    bottom: 100px;
+    left: 0px;"
+        onclick='delete localStorage["mDB_0"];document.getElementsByTagName("iframe")[0].contentWindow.location.reload()'>reset
+        phone</button>
+    <button style="
+    position: fixed;
+    bottom: 100px;
+    left: 100px;"
+        onclick='delete localStorage["mDB_1"];document.getElementsByTagName("iframe")[1].contentWindow.location.reload()'>reset
+        tablet</button>
+    <button style="
+        position: fixed;
+        bottom: 100px;
+        left: 200px;" onclick='document.getElementsByTagName("iframe")[0].contentWindow.location.reload()'>restart
+        phone</button>
+    <button style="
+        position: fixed;
+        bottom: 100px;
+        left: 300px;" onclick='document.getElementsByTagName("iframe")[1].contentWindow.location.reload()'>restart
+        tablet</button>
+</body>
+
+</html>
