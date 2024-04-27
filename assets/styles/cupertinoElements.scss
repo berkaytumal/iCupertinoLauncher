@@ -279,13 +279,17 @@ $material-presets: (
       }
     }
     &.open {
-      animation: appinfocontextmenuopen var(--jumpanim) 0.5s;
+      animation: appinfocontextmenuopen var(--jumpanim) 0.4s;
       @keyframes appinfocontextmenuopen {
-        from {
+        0% {
           transform: scale(0);
           opacity: 0;
         }
-        to {
+        10% {
+          transform: scale(0);
+          opacity: 0;
+        }
+        100% {
           transform: scale(var(--scale)) translate(var(--translate));
           opacity: 1;
         }

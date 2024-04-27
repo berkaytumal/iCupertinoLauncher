@@ -13,7 +13,7 @@ window.onBridgeEvent = (...event) => {
 
 // adding a listener later in the code
 bridgeEvents.add((name, args) => {
-    console.log("WOWOWOWOWO", name, args)   // args will be strongly typed
+    //    console.log("WOWOWOWOWO", name, args)   // args will be strongly typed
     if (name != "systemBarsWindowInsetsChanged") return
     windowinsets = JSON.parse(Bridge.getSystemBarsWindowInsets())
     Object.keys(windowinsets).forEach(element => {
@@ -31,9 +31,6 @@ window.$ = jquery, window.jQuery = jquery
 window["cupertinoElements"] = cupertinoElements
 window["springBoard"] = springBoard
 window["BScroll"] = BScroll
-
-
-
 
 function detectDeviceType() {
     const queryString = window.location.search;
@@ -184,12 +181,19 @@ springBoard.reloadApps(function () {
         const scrollContainer = document.querySelector('#pages-wrapper');
 
         // To simulate a pointer up event
+        const touchEndEvent = new TouchEvent('touchend', {
+            bubbles: true,
+            cancelable: true,
+            view: window,
+        });
+        // To simulate a pointer up event
         const mouseUpEvent = new MouseEvent('mouseup', {
             bubbles: true,
             cancelable: true,
             view: window,
         });
         scrollContainer.dispatchEvent(mouseUpEvent);
+        scrollContainer.dispatchEvent(touchEndEvent);
     }
     window["homeScroller"] = homeScroller
 
@@ -308,7 +312,7 @@ $(window).on("blur", function () {
 });
 
 Bridge.requestSetNavigationBarAppearance("hide")
-Bridge.requestSetStatusBarAppearance("dark-fg")
+Bridge.requestSetStatusBarAppearance("light-fg")
 
 
 $(window).on("load", function () {
@@ -319,3 +323,66 @@ $(window).on("load", function () {
     if (!Bridge["requestVibration"]) Bridge["requestVibration"] = (e) => { navigator.vibrate(e) }
 
 })
+
+$(window).on("load", function () {
+    setTimeout(() => {
+        $("#loader").addClass("hide")
+        setTimeout(() => {
+            $("#loader").remove()
+            $("#loaderstyle").remove()
+        }, 300);
+    }, 0);
+});
+
+/*
+setTimeout(() => {
+
+    const apiKey = '7c3dbcd1dcmsh7b16326b1603255p187441jsn64166f1bf2a5'
+
+    const packageNames = allappsarchive.map(obj => obj.packageName);
+
+    let requestsCompleted = 0;
+    let categoryPackages = {}
+    window.categoryPackages = categoryPackages
+    packageNames.forEach(packageName => {
+        const settings = {
+            async: true,
+            crossDomain: true,
+            url: `https://app-details-from-playstore.p.rapidapi.com/category?id=${packageName}`,
+            method: 'GET',
+            headers: {
+                'X-RapidAPI-Key': apiKey,
+                'X-RapidAPI-Host': 'app-details-from-playstore.p.rapidapi.com'
+            }
+        };  
+
+        $.ajax(settings).done(function (response) {
+            const categoryName = response.message; // Assuming the category name is in the 'title' field of the response
+            console.log(`Category for ${packageName}: ${categoryName}`);
+
+            if (!categoryPackages[categoryName]) {
+                categoryPackages[categoryName] = [];
+            }
+
+            // Add the package name to the corresponding category array
+            categoryPackages[categoryName].push(packageName);
+
+        }).fail(function (xhr, status, error) {
+            console.error(`Error retrieving category for ${packageName}: ${error}`);
+
+            var categoryName = "Other"
+            if (!categoryPackages[categoryName]) {
+                categoryPackages[categoryName] = [];
+            }
+
+            // Add the package name to the corresponding category array
+            categoryPackages[categoryName].push(packageName);
+        }).always(function () {
+            requestsCompleted++;
+            if (requestsCompleted === packageNames.length) {
+                console.log("done");
+            }
+        });
+    });
+}, 3000);
+*/

@@ -32,7 +32,7 @@ const getCurrentDBName = function () {
 console.log(getCurrentDBName())
 const getGrid = function (db) {
   var ava = JSON.parse(JSON.stringify(db))
-  var defaultGrid = document.body["TABLET_VIEW"] ? [5, 6] : window.innerHeight < 650 ? [4, 5] : [4, 6]
+  var defaultGrid = document.body["TABLET_VIEW"] ? [5, 6] : document.body.clientHeight < 650 ? [4, 5] : [4, 6]
   if (!ava.customGrid) {
     ava["temp"] = {
       grid: [0, 0]
@@ -179,7 +179,7 @@ const springBoard = {
   relocateIcons: function () {
     //dock
     window.windowinsets = JSON.parse(Bridge.getSystemBarsWindowInsets())
-    var [smallestSize, biggestSize] = [Math.min(window.innerWidth, window.innerHeight), Math.max(window.innerWidth, window.innerHeight)]
+    var [smallestSize, biggestSize] = [Math.min(document.body.clientWidth, document.body.clientHeight), Math.max(document.body.clientWidth, document.body.clientHeight)]
     var iconsize = Number($("body").css("--icon-size").slice(0, -2));
     var nestedDock = false
     if (biggestSize < 700) {
@@ -266,7 +266,7 @@ const springBoard = {
           var left = myDock.css("width").slice(0, -2) / 2 - (width + iconsize) / 2
         } else {
         }
-        
+
         myDock.children().each(function (index, element) {
           //   console.log(index, index, iconcount)
           const tr = index / (iconcount - 1)
@@ -296,10 +296,10 @@ const springBoard = {
     const rect = [100, 100, 0, $("#dock").height() + $("#dock").css("bottom").slice(0, -2) * 2]
     if (isTablet()) {
 
-      rect[0] = window.innerWidth * 0.075 + 50
-      rect[1] = window.innerHeight * 0.06 + 15
+      rect[0] = document.body.clientWidth * 0.075 + 50
+      rect[1] = document.body.clientHeight * 0.06 + 15
       rect[2] = rect[0]
-      rect[3] = window.innerHeight * 0.06 + 15 + 120
+      rect[3] = document.body.clientHeight * 0.06 + 15 + 120
     } else {
       if (landscape) {
         rect[0] = 32
@@ -309,20 +309,31 @@ const springBoard = {
       }
       else {
 
-        if (window.innerHeight < 700) {
-          rect[0] = window.innerWidth * 0.2 + -45
-          rect[2] = 20 / (390 / window.innerWidth)
-          rect[3] = window.innerHeight * 0.02 + 120
-          rect[1] = rect[0] / 1
+        if (document.body.clientHeight < 700) {
+          if (document.body.clientHeight < 670) {
+            rect[0] = document.body.clientWidth * 0.2 + -45
+            rect[2] = 20 / (390 / document.body.clientWidth)
+            rect[3] = document.body.clientHeight * 0.02 + 110
+            rect[1] = rect[0] / 2
+          } else {
+            rect[0] = document.body.clientWidth * 0.2 + -45
+            rect[2] = 20 / (390 / document.body.clientWidth)
+            rect[3] = document.body.clientHeight * 0.02 + 120
+            rect[1] = rect[0] / 1
+          }
+          var maxheight = (document.body.clientWidth - rect[2] - rect[0]) / 3 * 3 * 1.75
+          console.log("maxheight", maxheight)
+          maxheight = maxheight < 450 ? 450 : maxheight
+          if (document.body.clientHeight - rect[3] - rect[1] >= maxheight) rect[3] = document.body.clientHeight - (rect[1] + maxheight)
 
         } else {
-          rect[0] = window.innerWidth * 0.09 + 0
-          rect[1] = window.innerWidth * 0.2 + 0 + 120
-          rect[3] = window.innerHeight * 0.06 + 15 + 100
-          const maxheight = (window.innerWidth - rect[2] - rect[0])  / 3 * 3 * 1.25
-          if (window.innerHeight - rect[3] - rect[1] >= maxheight) rect[3] =  window.innerHeight - (rect[1] + maxheight)
+          rect[0] = document.body.clientWidth * 0.09 + 0
+          rect[1] = document.body.clientWidth * 0.2 + 0 + 120
+          rect[3] = document.body.clientHeight * 0.06 + 15 + 100
+          const maxheight = (document.body.clientWidth - rect[2] - rect[0]) / 3 * 3 * 1.25
+          if (document.body.clientHeight - rect[3] - rect[1] >= maxheight) rect[3] = document.body.clientHeight - (rect[1] + maxheight)
           rect[1] = rect[0]
-        
+
         }
         rect[2] = rect[0]
         rect[3] += window.windowinsets.bottom
@@ -445,6 +456,8 @@ const springBoard = {
 
     icon.removeClass("hold")
     icon.css("z-index", "11")
+    $(window).off("pointerup", window["appInfoContextMenuEventHandler"])
+    
     setTimeout(() => {
       del.remove()
       icon.css("z-index", "")
@@ -458,6 +471,7 @@ const springBoard = {
       }, 0);
 
     }, 200);
+    
   }
 }
 export default springBoard;

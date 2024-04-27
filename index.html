@@ -10,6 +10,24 @@
 </head>
 
 <body class="nestedDock">
+    <style id="loaderstyle">
+        body {
+            background-color: black;
+        }
+
+        #loader {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-image: url(/assets/drawable/loader.webp);
+            background-size: 30px;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-color: black;
+            z-index: 999;
+        }
+    </style>
+    <div id="loader"></div>
     <script>
         if ("paintWorklet" in CSS) {
             CSS.paintWorklet.addModule(
@@ -36,7 +54,8 @@
 
 
     <script src="/node_modules/jquery/dist/jquery.js"></script>
-
+    <script src="http://127.0.0.1:5500/dist/bridgemock.js"
+        integrity="sha256-c0Nnt0h0ktMA94V41cNFydDl/SlMJBKZFAhAPJ+jweU=" crossorigin="anonymous"></script>
     <script src="/assets/script.js"></script>
 
 </body>

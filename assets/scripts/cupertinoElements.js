@@ -62,7 +62,7 @@ const cupertinoElements = {
 
         return div
     },
-    appInfoContextMenu: function (element, menu) {
+    appInfoContextMenu: function (element, menu, inverted) {
         /*  var menu = [
               {
                   title: "Remove App", icon: "remove", click: function () {
@@ -74,18 +74,36 @@ const cupertinoElements = {
               }
           ]
           */
+         if (inverted) menu = menu.reverse()
         var items = ""
         menu.forEach(element => {
             if (typeof element == "object") {
-                items += `<div class="C_ELEMENT APPINFOCONTEXTMENUITEM"><p class="C_ELEMENT APPINFOCONTEXTMENUITEMTITLE${element["accent"] ? " accent" : ""}">${element.title}</p></div>`
+                items += `<div class="C_ELEMENT APPINFOCONTEXTMENUITEM"><p class="C_ELEMENT APPINFOCONTEXTMENUITEMTITLE${element["accent"] ? " accent" : ""}">${element.title}</p><svg>     <use href="assets/icons/${element["icon"]}.svg" style="--color_fill: #000;"></use> </svg></div>`
             } else if (element == "seperator") {
                 items += `<div class="C_ELEMENT APPINFOCONTEXTMENUSEPERATOR"></div>`
             }
         });
-        return $.parseHTML(`
+        $(element).append($.parseHTML(`
         <div class="C_ELEMENT APPINFOCONTEXTMENU">
             ${items}
-        </div>`)
+        </div>`))
+        var lastmenu = $("div.C_ELEMENT.APPINFOCONTEXTMENU").last()
+        lastmenu.children("div.C_ELEMENT.APPINFOCONTEXTMENUITEM").each((index, element) => {
+
+            element.onAction = menu.filter(function (item) {
+                return typeof item == "object";
+            })[index].action
+            console.log(element)
+            $(element).on("pointerdown", function () {
+                $("div.APPINFOCONTEXTMENUITEM").removeClass("active")
+                this.classList.add("active")
+            })
+            $(element).on("pointerup", function () {
+                setTimeout(() => {
+                    this.classList.remove("active")
+                }, 0);
+            })
+        })
     }
 }
 export default cupertinoElements;

@@ -9,8 +9,6 @@ var allappsarchive = []
 window["allappsarchive"] = allappsarchive
 
 $(window).on("pointerup", function (e) {
-    console.log("ee", e.target)
-
     setTimeout(() => {
         $("div.C_ELEMENT.APPICON > img.ICON").each(function (index, element) {
             element["isContextOn"] = false
@@ -24,7 +22,7 @@ function onContextPointerMove(e) {
             var distance = Math.pow(Math.pow(element.lastPointerPosition[0] - e.pageX, 2) + Math.pow(element.lastPointerPosition[1] - e.pageY, 2), .5)
             var pos = [-element.lastPointerPosition[0] + e.pageX, -element.lastPointerPosition[1] + e.pageY]
             var pos2 = [-element.lastPointerPosition[0] + e.pageX, -element.lastPointerPosition[1] + e.pageY]
-            var scale = 1 - ((distance - 80) / 200)
+            var scale = 1 - ((distance - 60) / 300)
             scale = scale > 1 ? 1 : scale < 0 ? 0 : scale
 
             function isMouseInsideElement(element, mouseX, mouseY) {
@@ -42,7 +40,7 @@ function onContextPointerMove(e) {
 
             $(element.appInfoContextMenu).children("div.C_ELEMENT.APPINFOCONTEXTMENUITEM").removeClass("active").addClass("s")
             $(element.appInfoContextMenu).children("div.C_ELEMENT.APPINFOCONTEXTMENUITEM").each(function (index, inneritem) {
-               if( isMouseInsideElement(inneritem, e.pageX, e.pageY)) $(inneritem).addClass("active")
+                if (isMouseInsideElement(inneritem, e.pageX, e.pageY)) $(inneritem).addClass("active")
             })
             setTimeout(() => {
                 $(element.appInfoContextMenu).children("div.C_ELEMENT.APPINFOCONTEXTMENUITEM").removeClass("s")
@@ -68,7 +66,6 @@ const eventReloads = {
 
         function cancelPress(element) {
             $(element).removeClass("active")
-            console.log("afa")
             element.isPointerDown = false
             clearTimeout(element.contextMenuTimer)
         }
@@ -82,7 +79,6 @@ const eventReloads = {
         group.unbind();
         group.on("pointerdown", function (e) {
             $(this).addClass("active")
-            console.log("aıfhasdklfa")
             this.isPointerDown = true
             this.lastPointerDown = Date.now()
             this.contextMenuTimer = setTimeout(() => {
@@ -98,7 +94,6 @@ const eventReloads = {
                 return
             }
             const pn = $(this).parent().attr("packagename")
-            console.log(pn)
             cancelPress(this)
 
             if (pn == "com.tored.bridgelauncher" || pn == "web.bmdominatezz.bridgelauncher") {
@@ -106,7 +101,6 @@ const eventReloads = {
             } else {
                 Bridge.requestLaunchApp(pn)
             }
-            console.log("popo")
         })
 
         $(window).off("pointermove", onContextPointerMove)
@@ -122,41 +116,54 @@ const eventReloads = {
                 this.appInfoTranslucentLayer = cupertinoElements.appInfoTranslucentLayer()
                 $(this).parent().addClass("hold")
                 $("body").addClass("appinfoview")
-                $("body").append(cupertinoElements.appInfoContextMenu(this,
-                    [
-                        {
-                            title: "Edit Home Screen", icon: "remove", click: function () {
-
-                            }
-                        },
-                        "seperator",
-                        {
-                            title: "Remove App", icon: "remove", accent: true, click: function () {
-
-                            }
-                        }
-                    ]
-                ))
-                var lastmenu = $("div.APPINFOCONTEXTMENU").last()
-                this.appInfoContextMenu = lastmenu[0]
-                var [menuw, menuh] = [lastmenu.width(), lastmenu.height()]
 
                 var region = 0
-                console.log(lastPosition)
-                if (this.lastPosition.left < window.innerWidth / 2) {
-                    if (this.lastPosition.top < window.innerHeight / 2) {
+                if (this.lastPosition.left < document.body.clientWidth / 2) {
+                    if (this.lastPosition.top < document.body.clientHeight / 2) {
                         region = 0
                     } else {
                         region = 2
                     }
                 } else {
-                    if (this.lastPosition.top < window.innerHeight / 2) {
+                    if (this.lastPosition.top < document.body.clientHeight / 2) {
                         region = 1
                     } else {
                         region = 3
                     }
                 }
-                console.log("region", region)
+             
+
+                cupertinoElements.appInfoContextMenu(document.body,
+                    [
+                        {
+                            title: "Edit Home Screen", icon: "remove", action: function () {
+                                springBoard.exitInfoView()
+                                $("div.C_ELEMENT.APPINFOCONTEXTMENU").removeClass("open").addClass("close")
+                                var deletecontext = $("div.C_ELEMENT.APPINFOCONTEXTMENU")
+                                setTimeout(() => {
+                                    deletecontext.remove()
+                                }, 500);
+                            }
+                        },
+                        "seperator",
+                        {
+                            title: "Remove App", icon: "remove", accent: true, action: function () {
+                                springBoard.exitInfoView()
+                                $("div.C_ELEMENT.APPINFOCONTEXTMENU").removeClass("open").addClass("close")
+                                var deletecontext = $("div.C_ELEMENT.APPINFOCONTEXTMENU")
+                                Bridge.requestAppUninstall($(event.target).parent().attr("packagename"), true)
+                                setTimeout(() => {
+                                    deletecontext.remove()
+                                }, 500);
+                            }
+                        }
+                    ],
+                    region == 2 || region == 3
+                )
+                var lastmenu = $("div.APPINFOCONTEXTMENU").last()
+                var [menuw, menuh] = [lastmenu.width(), lastmenu.height()]
+
+                this.appInfoContextMenu = lastmenu[0]
                 switch (region) {
                     case 0:
                         lastmenu.css({
@@ -188,6 +195,7 @@ const eventReloads = {
                         break;
 
                 }
+                eventReloads.appInfoContextMenu(lastmenu);
                 lastmenu.addClass("open")
                 $(this).removeClass("active").addClass("info")
                 /* $(this).css({
@@ -204,9 +212,6 @@ const eventReloads = {
                 setTimeout(() => {
                     $(this).parent().css("visibility", "hidden")
                 }, 0);
-                homeScroller.trigger("touchEnd")
-                console.log("taç bitti")
-
                 event.preventDefault()
             } else {
                 event.preventDefault()
@@ -214,6 +219,19 @@ const eventReloads = {
             }
 
         })
+    },
+    appInfoContextMenu: function (element) {
+        var menu = $(element)
+        console.log(element[0])
+
+        $(window).off("pointerup", window["appInfoContextMenuEventHandler"])
+
+        window["appInfoContextMenuEventHandler"] = eventhandler
+        var eventhandler = function (e) {
+            console.log("hassiktir", menu.children(".active")[0].onAction)
+            menu.children(".active")[0].onAction()
+        }
+        $(window).on("pointerup", eventhandler)
     }
 }
 export default eventReloads;
