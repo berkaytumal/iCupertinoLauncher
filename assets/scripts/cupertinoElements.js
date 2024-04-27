@@ -46,16 +46,46 @@ const cupertinoElements = {
         div.classList.add("APPINFOTRANSLUCENTLAYER")
         setTimeout(() => {
             div.cango = true
-             $(div).on("click",function () {
-            springBoard.exitInfoView()
-        })
+            $(div).on("click", function () {
+                $("div.C_ELEMENT.APPICON > img.ICON").each(function (index, element) {
+                    element["isContextOn"] = false
+                })
+                springBoard.exitInfoView()
+                $("div.C_ELEMENT.APPINFOCONTEXTMENU").removeClass("open").addClass("close")
+                var deletecontext = $("div.C_ELEMENT.APPINFOCONTEXTMENU")
+                setTimeout(() => {
+                    deletecontext.remove()
+                }, 500);
+            })
         }, 500);
         $("body").append(div)
-       
+
         return div
     },
-    appInfoContextMenu:function () {
-        
+    appInfoContextMenu: function (element, menu) {
+        /*  var menu = [
+              {
+                  title: "Remove App", icon: "remove", click: function () {
+  
+                  },
+                  title: "Edit Home Screen", icon: "edit", click: function () {
+  
+                  }
+              }
+          ]
+          */
+        var items = ""
+        menu.forEach(element => {
+            if (typeof element == "object") {
+                items += `<div class="C_ELEMENT APPINFOCONTEXTMENUITEM"><p class="C_ELEMENT APPINFOCONTEXTMENUITEMTITLE${element["accent"] ? " accent" : ""}">${element.title}</p></div>`
+            } else if (element == "seperator") {
+                items += `<div class="C_ELEMENT APPINFOCONTEXTMENUSEPERATOR"></div>`
+            }
+        });
+        return $.parseHTML(`
+        <div class="C_ELEMENT APPINFOCONTEXTMENU">
+            ${items}
+        </div>`)
     }
 }
 export default cupertinoElements;

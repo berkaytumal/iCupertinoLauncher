@@ -178,6 +178,7 @@ const springBoard = {
 
   relocateIcons: function () {
     //dock
+    window.windowinsets = JSON.parse(Bridge.getSystemBarsWindowInsets())
     var [smallestSize, biggestSize] = [Math.min(window.innerWidth, window.innerHeight), Math.max(window.innerWidth, window.innerHeight)]
     var iconsize = Number($("body").css("--icon-size").slice(0, -2));
     var nestedDock = false
@@ -265,7 +266,7 @@ const springBoard = {
           var left = myDock.css("width").slice(0, -2) / 2 - (width + iconsize) / 2
         } else {
         }
-
+        
         myDock.children().each(function (index, element) {
           //   console.log(index, index, iconcount)
           const tr = index / (iconcount - 1)
@@ -312,6 +313,7 @@ const springBoard = {
           rect[0] = window.innerWidth * 0.2 + -45
           rect[2] = 20 / (390 / window.innerWidth)
           rect[3] = window.innerHeight * 0.02 + 120
+          rect[1] = rect[0] / 1
 
         } else {
           rect[0] = window.innerWidth * 0.09 + 0
@@ -319,13 +321,16 @@ const springBoard = {
           rect[3] = window.innerHeight * 0.06 + 15 + 100
           const maxheight = (window.innerWidth - rect[2] - rect[0])  / 3 * 3 * 1.25
           if (window.innerHeight - rect[3] - rect[1] >= maxheight) rect[3] =  window.innerHeight - (rect[1] + maxheight)
+          rect[1] = rect[0]
+        
         }
-        rect[1] = rect[0]
         rect[2] = rect[0]
+        rect[3] += window.windowinsets.bottom
 
       }
     }
-
+    console.log(window.windowinsets)
+    rect[1] += window.windowinsets.top
 
 
 

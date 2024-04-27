@@ -1,15 +1,38 @@
 
+window.windowinsets = document.body.windowinsets = { left: 0, top: 0, right: 0, bottom: 0 }
+
 detectDeviceType()
-if (!Bridge["requestVibration"]) Bridge["requestVibration"] = ()=>{}
+
+// set that will hold all registered event listeners
+const bridgeEvents = new Set;
+
+// upon receiving an event, forward it to all listeners
+window.onBridgeEvent = (...event) => {
+    bridgeEvents.forEach(l => l(...event));
+}
+
+// adding a listener later in the code
+bridgeEvents.add((name, args) => {
+    console.log("WOWOWOWOWO", name, args)   // args will be strongly typed
+    if (name != "systemBarsWindowInsetsChanged") return
+    windowinsets = JSON.parse(Bridge.getSystemBarsWindowInsets())
+    Object.keys(windowinsets).forEach(element => {
+        $("body").css("--window-inset-" + element, windowinsets[element] + "px")
+    });
+})
+
 
 import cupertinoElements from './cupertinoElements.js';
 import eventReloads from './eventReloads.js';
 import springBoard from './springBoardElements.js';
 import BScroll from "better-scroll"
 import jquery from 'jquery';
+window.$ = jquery, window.jQuery = jquery
 window["cupertinoElements"] = cupertinoElements
 window["springBoard"] = springBoard
 window["BScroll"] = BScroll
+
+
 
 
 function detectDeviceType() {
@@ -157,6 +180,17 @@ springBoard.reloadApps(function () {
         threshold: 0
 
     })
+    homeScroller["cancel"] = function () {
+        const scrollContainer = document.querySelector('#pages-wrapper');
+
+        // To simulate a pointer up event
+        const mouseUpEvent = new MouseEvent('mouseup', {
+            bubbles: true,
+            cancelable: true,
+            view: window,
+        });
+        scrollContainer.dispatchEvent(mouseUpEvent);
+    }
     window["homeScroller"] = homeScroller
 
     const bs = window["homeScroller"]
@@ -274,3 +308,14 @@ $(window).on("blur", function () {
 });
 
 Bridge.requestSetNavigationBarAppearance("hide")
+Bridge.requestSetStatusBarAppearance("dark-fg")
+
+
+$(window).on("load", function () {
+    windowinsets = JSON.parse(Bridge.getSystemBarsWindowInsets())
+    Object.keys(windowinsets).forEach(element => {
+        $("body").css("--window-inset-" + element, windowinsets[element] + "px")
+    });
+    if (!Bridge["requestVibration"]) Bridge["requestVibration"] = (e) => { navigator.vibrate(e) }
+
+})

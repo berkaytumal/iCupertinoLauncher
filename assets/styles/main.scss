@@ -1,7 +1,7 @@
 img {
-  text-indent: -10000px
+  text-indent: -10000px;
 }
-*{
+* {
   touch-action: none;
 }
 body.squircle * {
@@ -18,7 +18,11 @@ body.squircle * {
 }
 :root {
   --basic-animation: 500ms ease-out;
+  --jumpanim: cubic-bezier(0.33, 1.27, 0.41, 1);
+  --jump2anim: cubic-bezier(0.3, 2, 0.4, 1);
+  --jump3anim: cubic-bezier(0.3, 1.5, 0.5, 1);
 }
+
 .hey {
   .hey {
     padding: auto;

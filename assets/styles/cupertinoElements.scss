@@ -70,7 +70,6 @@ $material-presets: (
 /*APPICON*/
 .C_ELEMENT {
   &.APPICON {
-   
     z-index: 1;
     &.hold {
       pointer-events: none !important;
@@ -137,10 +136,8 @@ $material-presets: (
       }
 
       &.info {
-
         z-index: 11;
-        animation: iconinfo .3s 0.1s cubic-bezier(0.95, 4, 0.2, 1)
-          forwards;
+        animation: iconinfo 0.3s 0.1s cubic-bezier(0.95, 4, 0.2, 1) forwards;
       }
       @keyframes iconhover {
         0% {
@@ -262,6 +259,104 @@ $material-presets: (
       }
     }
   }
+  &.APPINFOCONTEXTMENU {
+    width: 228px;
+    position: absolute;
+    z-index: 10;
+    backdrop-filter: blur(50px) saturate(2);
+    border-radius: 12px !important;
+    overflow: hidden;
+    color: rgb(black, 0.9);
+    --scale: 1;
+    --translate: 0px, 0px;
+    transform: scale(var(--scale)) translate(var(--translate));
+    background: rgb(250, 250, 250, 0.8);
+    transition: transform 0.5s cubic-bezier(0.075, 0.82, 0.165, 1);
+    @media (prefers-color-scheme: dark) {
+      & {
+        background: rgb(37, 37, 37, 0.8);
+        color: rgb(white, 0.9);
+      }
+    }
+    &.open {
+      animation: appinfocontextmenuopen var(--jumpanim) 0.5s;
+      @keyframes appinfocontextmenuopen {
+        from {
+          transform: scale(0);
+          opacity: 0;
+        }
+        to {
+          transform: scale(var(--scale)) translate(var(--translate));
+          opacity: 1;
+        }
+      }
+    }
+    &.close {
+      animation: appinfocontextmenuclose var(--jumpanim) 0.3s forwards;
+      @keyframes appinfocontextmenuclose {
+        from {
+          transform: scale(var(--scale)) translate(var(--translate));
+          opacity: 1;
+        }
+        to {
+          transform: scale(0) translate(var(--translate));
+          opacity: 0;
+        }
+      }
+    }
+    body.TABLET_VIEW & {
+      width: 250px;
+    }
+    div.APPINFOCONTEXTMENUITEM {
+      transition: 0.5s;
+      &:active,
+      &.active {
+        transition: 0s;
+        background: rgb(255, 255, 255, 0.1) !important;
+        box-shadow: none !important;
+        @media (prefers-color-scheme: light) {
+          & {
+            background: rgb(0, 0, 0, 0.1) !important;
+          }
+        }
+      }
+      &.s {
+        transition: 0s !important;
+      }
+      p.APPINFOCONTEXTMENUITEMTITLE {
+        &.accent {
+          color: var(--colors-red);
+        }
+        @media (prefers-color-scheme: dark) {
+          &.accent {
+            color: var(--colors-red-dark);
+          }
+        }
+        position: absolute;
+        left: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+      }
+      p.APPINFOCONTEXTMENUITEM {
+        position: absolute;
+        left: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+      }
+      width: 100%;
+      height: 44px;
+
+      box-shadow: inset 0px -1px 0px rgb(255, 255, 255, 0.1) !important;
+      @media (prefers-color-scheme: light) {
+        & {
+          box-shadow: inset 0px -1px 0px rgb(0, 0, 0, 0.1) !important;
+        }
+      }
+      &:last-child {
+        box-shadow: none !important;
+      }
+    }
+  }
 }
 
 body {
@@ -270,6 +365,12 @@ body {
   }
 }
 
-body > div.C_ELEMENT.APPICON > P.STRING{
+body > div.C_ELEMENT.APPICON > P.STRING {
   display: none;
 }
+/*
+.C_ELEMENT.APPINFOTRANSLUCENTLAYER {
+  backdrop-filter: none !important;
+  opacity: 0;
+}
+*/

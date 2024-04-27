@@ -298,6 +298,102 @@ body.TABLET_VIEW .C_ELEMENT.APPINFOTRANSLUCENTLAYER {
     background: transparent;
   }
 }
+.C_ELEMENT.APPINFOCONTEXTMENU {
+  width: 228px;
+  position: absolute;
+  z-index: 10;
+  backdrop-filter: blur(50px) saturate(2);
+  border-radius: 12px !important;
+  overflow: hidden;
+  color: rgba(0, 0, 0, 0.9);
+  --scale: 1;
+  --translate: 0px, 0px;
+  transform: scale(var(--scale)) translate(var(--translate));
+  background: rgba(250, 250, 250, 0.8);
+  transition: transform 0.5s cubic-bezier(0.075, 0.82, 0.165, 1);
+}
+@media (prefers-color-scheme: dark) {
+  .C_ELEMENT.APPINFOCONTEXTMENU {
+    background: rgba(37, 37, 37, 0.8);
+    color: rgba(255, 255, 255, 0.9);
+  }
+}
+.C_ELEMENT.APPINFOCONTEXTMENU.open {
+  animation: appinfocontextmenuopen var(--jumpanim) 0.5s;
+}
+@keyframes appinfocontextmenuopen {
+  from {
+    transform: scale(0);
+    opacity: 0;
+  }
+  to {
+    transform: scale(var(--scale)) translate(var(--translate));
+    opacity: 1;
+  }
+}
+.C_ELEMENT.APPINFOCONTEXTMENU.close {
+  animation: appinfocontextmenuclose var(--jumpanim) 0.3s forwards;
+}
+@keyframes appinfocontextmenuclose {
+  from {
+    transform: scale(var(--scale)) translate(var(--translate));
+    opacity: 1;
+  }
+  to {
+    transform: scale(0) translate(var(--translate));
+    opacity: 0;
+  }
+}
+body.TABLET_VIEW .C_ELEMENT.APPINFOCONTEXTMENU {
+  width: 250px;
+}
+.C_ELEMENT.APPINFOCONTEXTMENU div.APPINFOCONTEXTMENUITEM {
+  transition: 0.5s;
+  width: 100%;
+  height: 44px;
+  box-shadow: inset 0px -1px 0px rgba(255, 255, 255, 0.1) !important;
+}
+.C_ELEMENT.APPINFOCONTEXTMENU div.APPINFOCONTEXTMENUITEM:active, .C_ELEMENT.APPINFOCONTEXTMENU div.APPINFOCONTEXTMENUITEM.active {
+  transition: 0s;
+  background: rgba(255, 255, 255, 0.1) !important;
+  box-shadow: none !important;
+}
+@media (prefers-color-scheme: light) {
+  .C_ELEMENT.APPINFOCONTEXTMENU div.APPINFOCONTEXTMENUITEM:active, .C_ELEMENT.APPINFOCONTEXTMENU div.APPINFOCONTEXTMENUITEM.active {
+    background: rgba(0, 0, 0, 0.1) !important;
+  }
+}
+.C_ELEMENT.APPINFOCONTEXTMENU div.APPINFOCONTEXTMENUITEM.s {
+  transition: 0s !important;
+}
+.C_ELEMENT.APPINFOCONTEXTMENU div.APPINFOCONTEXTMENUITEM p.APPINFOCONTEXTMENUITEMTITLE {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+.C_ELEMENT.APPINFOCONTEXTMENU div.APPINFOCONTEXTMENUITEM p.APPINFOCONTEXTMENUITEMTITLE.accent {
+  color: var(--colors-red);
+}
+@media (prefers-color-scheme: dark) {
+  .C_ELEMENT.APPINFOCONTEXTMENU div.APPINFOCONTEXTMENUITEM p.APPINFOCONTEXTMENUITEMTITLE.accent {
+    color: var(--colors-red-dark);
+  }
+}
+.C_ELEMENT.APPINFOCONTEXTMENU div.APPINFOCONTEXTMENUITEM p.APPINFOCONTEXTMENUITEM {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+@media (prefers-color-scheme: light) {
+  .C_ELEMENT.APPINFOCONTEXTMENU div.APPINFOCONTEXTMENUITEM {
+    box-shadow: inset 0px -1px 0px rgba(0, 0, 0, 0.1) !important;
+  }
+}
+.C_ELEMENT.APPINFOCONTEXTMENU div.APPINFOCONTEXTMENUITEM:last-child {
+  box-shadow: none !important;
+}
 
 body.TABLET_VIEW #innerapp {
   transform: none !important;
@@ -307,8 +403,18 @@ body > div.C_ELEMENT.APPICON > P.STRING {
   display: none;
 }
 
+/*
+.C_ELEMENT.APPINFOTRANSLUCENTLAYER {
+  backdrop-filter: none !important;
+  opacity: 0;
+}
+*/
 :root {
   --icon-size: 60px;
+  --window-inset-left: 0px;
+  --window-inset-top: 0px;
+  --window-inset-right: 0px;
+  --window-inset-bottom: 0px;
 }
 
 * {
@@ -377,6 +483,7 @@ body #pages div.C_ELEMENT.PAGEGRID {
 body.nestedDock #dock {
   background: transparent !important;
   backdrop-filter: unset !important;
+  mask: none !important;
 }
 body.nestedDock #dockBg {
   display: block !important;
@@ -415,7 +522,7 @@ body.TABLET_VIEW.squircle #dock {
   mask-image: paint(squircle);
 }
 body.TABLET_VIEW #dock {
-  bottom: 20px;
+  bottom: calc(20px + var(--window-inset-bottom));
   border-radius: 28px;
   height: 94px;
   left: 50%;
@@ -435,7 +542,7 @@ body:not(.TABLET_VIEW).squircle #dock {
   mask-image: paint(squircle);
 }
 body:not(.TABLET_VIEW) #dock {
-  bottom: 12px;
+  bottom: calc(12px + var(--window-inset-bottom));
   left: 12px;
   width: calc(100% - 24px);
   height: 98px;
@@ -476,6 +583,9 @@ body:not(.appinfoview) #innerapp {
 }
 :root {
   --basic-animation: 500ms ease-out;
+  --jumpanim: cubic-bezier(0.33, 1.27, 0.41, 1);
+  --jump2anim: cubic-bezier(0.3, 2, 0.4, 1);
+  --jump3anim: cubic-bezier(0.3, 1.5, 0.5, 1);
 }
 
 .hey .hey {
