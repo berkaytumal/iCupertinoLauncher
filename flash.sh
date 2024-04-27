@@ -2,7 +2,7 @@ destination_folder="/sdcard/iCupertino"
 #node modules seperated by spaces
 NODE_MODULES="jquery css-houdini-squircle"
 #folders and files to copy, seperated by spaces
-ITEMS_TO_COPY="assets index.html mock"
+ITEMS_TO_COPY="assets index.html"
 
 if [ ! -f package.json ] && [[ ! $* == *--no-check-dir* ]]; then
     echo 1>&2 "error: missing package.json in $(pwd), check if this is the project root"
