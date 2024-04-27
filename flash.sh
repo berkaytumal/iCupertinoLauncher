@@ -1,6 +1,8 @@
 destination_folder="/sdcard/iCupertino"
 #node modules seperated by spaces
 NODE_MODULES="jquery css-houdini-squircle"
+#folders and files to copy, seperated by spaces
+ITEMS_TO_COPY="assets index.html mock"
 
 if [ ! -f package.json ] && [[ ! $* == *--no-check-dir* ]]; then
     echo 1>&2 "error: missing package.json in $(pwd), check if this is the project root"
@@ -39,12 +41,9 @@ for device in $devices; do
     adb -s $device shell mkdir "$destination_folder"
 
     echo "copying files..."
-    for item in *; do
+    for item in $ITEMS_TO_COPY; do
         item_basename="$(basename "$item")"
-        #node modules will be treated seperately
-        if [ "$item_basename" != "node_modules" ]; then
-            adb -s $device push "$item" "$destination_folder/$item_basename" 1>/dev/null
-        fi
+        adb -s $device push "$item" "$destination_folder/$item_basename" 1>/dev/null
     done
     echo "done copying files"
 
