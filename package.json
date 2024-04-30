@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "npx webpack --watch & sass --no-source-map --watch assets/styles/main.scss assets/style.css",
+    "build": "npx webpack & sass --no-source-map assets/styles/main.scss assets/style.css",
     "flash": "npx webpack && sass --no-source-map assets/styles/main.scss assets/style.css && sh flash.sh && echo Finished",
     "multiflash": "npx webpack && sass --no-source-map assets/styles/main.scss assets/style.css && sh flash.sh --multi && echo Finished"
   },
