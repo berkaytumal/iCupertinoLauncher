@@ -16,7 +16,9 @@
         }
 
         #loader {
-            position: absolute;
+            position: fixed;
+            left: 0px;
+            top: 0px;
             width: 100%;
             height: 100%;
             background-image: url(/assets/drawable/loader.webp);
@@ -26,38 +28,41 @@
             background-color: black;
             z-index: 999;
         }
+
+        p.goodbye {
+            width: 200px;
+            position: absolute;
+            text-align: center;
+            left: 50%;
+            top: 47.5%;
+            transform: translate(-50%, -50%);
+            filter: opacity(0);
+            animation: goodbyeanim cubic-bezier(0.075, 0.82, 0.165, 1) .5s .5s forwards;
+        }
+
+        @keyframes goodbyeanim {
+            from {
+                transform: translate(-50%, -50%) scale(1.5);
+                filter: blur(20px) opacity(0);
+            }
+
+            to {
+                transform: translate(-50%, -50%) scale(1);
+                filter: blur(0px) opacity(1);
+            }
+        }
     </style>
     <div id="loader"></div>
-    <script>
-        if ("paintWorklet" in CSS) {
-            CSS.paintWorklet.addModule(
-                "/node_modules/css-houdini-squircle/lib/squircle.js"
-            );
-            document.body.classList.add("squircle")
-        } else {
-            console.log("houdini not supported")
-        }
-    </script>
     <div id="innerapp">
         <div id="pages-wrapper">
             <div id="pages"></div>
         </div>
-        <div id="dock" class="M_ULTRATHINDARK MATERIAL">
-
-        </div>
-        <div id="dockBg" class="M_ULTRATHINLIGHT MATERIAL">
-
-        </div>
+        <div id="dock" class="M_ULTRATHINDARK MATERIAL"></div>
+        <div id="dockBg" class="M_ULTRATHINLIGHT MATERIAL"></div>
     </div>
     <img id="system_wallpaper" src="assets/drawable/wallpaper.png">
-
-
-
-    <script src="/node_modules/jquery/dist/jquery.js"></script>
-    <script src="http://127.0.0.1:5500/dist/bridgemock.js"
-        integrity="sha256-c0Nnt0h0ktMA94V41cNFydDl/SlMJBKZFAhAPJ+jweU=" crossorigin="anonymous"></script>
+    <canvas id="movingtest"></canvas>
     <script src="/assets/script.js"></script>
-
 </body>
 
 </html>
