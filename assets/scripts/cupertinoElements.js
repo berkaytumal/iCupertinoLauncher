@@ -1,14 +1,19 @@
-const [$, jQuery] = [window["$"], window["jQuery"]]
+import jquery from 'jquery';
+var $ = jquery; var jQuery = jquery;
 import eventReloads from "./eventReloads";
-import springBoard from "./springBoardElements";
+import springBoard from "./springBoardEvents";
+import formatString from '../scripts/libraries/stringFormat.js';
+import localeHelper from '../scripts/libraries/stringFormat.js';
 
 const cupertinoElements = {
     appIcon: function (iconUrl, string, packageName) {
         setTimeout(() => {
             eventReloads.appIcon()
         }, 1);
+        const apptag = Date.now() + "-" + Math.round(Math.random() * 1000)
         return $.parseHTML(`
-        <div class="C_ELEMENT APPICON" packageName="${packageName}">
+        <div class="C_ELEMENT APPICON" id="${apptag}" packageName="${packageName}">
+            <div class="C_ELEMENT APPICONDELETE" tag="${apptag}" style="--tag:'${apptag}'" onclick="appIconClick(this)"></div>
             <img class="ICON" src="${iconUrl}" style="background:white;" onerror="this.src='assets/drawable/undefined.png'"/>
             <p class="STRING">${string}</p>
         </div>`)
@@ -50,7 +55,7 @@ const cupertinoElements = {
                 $("div.C_ELEMENT.APPICON > img.ICON").each(function (index, element) {
                     element["isContextOn"] = false
                 })
-                springBoard.exitInfoView()
+                springBoard.exitInfoView(true)
                 $("div.C_ELEMENT.APPINFOCONTEXTMENU").removeClass("open").addClass("close")
                 var deletecontext = $("div.C_ELEMENT.APPINFOCONTEXTMENU")
                 setTimeout(() => {
@@ -74,11 +79,16 @@ const cupertinoElements = {
               }
           ]
           */
-         if (inverted) menu = menu.reverse()
+        if (inverted) menu = menu.reverse()
         var items = ""
         menu.forEach(element => {
             if (typeof element == "object") {
-                items += `<div class="C_ELEMENT APPINFOCONTEXTMENUITEM"><p class="C_ELEMENT APPINFOCONTEXTMENUITEMTITLE${element["accent"] ? " accent" : ""}">${element.title}</p><svg>     <use href="assets/icons/${element["icon"]}.svg" style="--color_fill: #000;"></use> </svg></div>`
+                items += `<div class="C_ELEMENT APPINFOCONTEXTMENUITEM"><p class="C_ELEMENT APPINFOCONTEXTMENUITEMTITLE${element["accent"] ? " accent" : ""}">${element.title}</p>
+
+                <span class="C_ELEMENT APPINFOCONTEXTMENUITEMICON${element["accent"] ? " accent" : ""}">
+                ${element["icon"]}</span>
+
+                </div>`
             } else if (element == "seperator") {
                 items += `<div class="C_ELEMENT APPINFOCONTEXTMENUSEPERATOR"></div>`
             }
@@ -93,7 +103,6 @@ const cupertinoElements = {
             element.onAction = menu.filter(function (item) {
                 return typeof item == "object";
             })[index].action
-            console.log(element)
             $(element).on("pointerdown", function () {
                 $("div.APPINFOCONTEXTMENUITEM").removeClass("active")
                 this.classList.add("active")

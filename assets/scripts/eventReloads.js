@@ -1,23 +1,31 @@
-const [$, jQuery] = [window["$"], window["jQuery"]]
+import jquery from 'jquery';
+var $ = jquery; var jQuery = jquery;
 import { BridgeMock, createDefaultBridgeMockConfig } from '@bridgelauncher/api-mock';
 import cupertinoElements from './cupertinoElements';
-import springBoard from './springBoardElements';
+import springBoard from './springBoardEvents';
+import { event } from 'jquery';
 const myDock = $("body #dock")
 window["myDock"] = myDock
-if (!window.Bridge) window.Bridge = new BridgeMock(new createDefaultBridgeMockConfig());
+const BridgeMockInstance = !window.Bridge
+
+if (BridgeMockInstance) {
+    window.Bridge = new BridgeMock(new createDefaultBridgeMockConfig());
+    Bridge.config.logRaisedBridgeEvents = false
+    Bridge.config.appsUrl = "mock/apps.json"
+    Bridge.config.statusBarHeight = 0
+    Bridge.config.navigationBarHeight = 0
+}
 var allappsarchive = []
 window["allappsarchive"] = allappsarchive
 
-$(window).on("pointerup", function (e) {
-    setTimeout(() => {
-        $("div.C_ELEMENT.APPICON > img.ICON").each(function (index, element) {
-            element["isContextOn"] = false
-        })
-    }, 10);
-})
+function windowGlobalPointerUp() {
+
+}
+$(window).on("pointerup", windowGlobalPointerUp)
 function onContextPointerMove(e) {
     var group = $("div.C_ELEMENT.APPICON > img.ICON")
     group.each(function (index, element) {
+
         if (element["isContextOn"] == true) {
             var distance = Math.pow(Math.pow(element.lastPointerPosition[0] - e.pageX, 2) + Math.pow(element.lastPointerPosition[1] - e.pageY, 2), .5)
             var pos = [-element.lastPointerPosition[0] + e.pageX, -element.lastPointerPosition[1] + e.pageY]
@@ -37,6 +45,12 @@ function onContextPointerMove(e) {
                 scale = 1
                 pos2 = [0, 0]
             }
+            if (scale < .75) {
+                springBoard.exitInfoView(false)
+
+                element.moveMode.enter()
+                e.stopPropagation()
+            }
 
             $(element.appInfoContextMenu).children("div.C_ELEMENT.APPINFOCONTEXTMENUITEM").removeClass("active").addClass("s")
             $(element.appInfoContextMenu).children("div.C_ELEMENT.APPINFOCONTEXTMENUITEM").each(function (index, inneritem) {
@@ -55,9 +69,33 @@ function onContextPointerMove(e) {
 
             if (scale < .75) {
                 element["isContextOn"] = false
-                springBoard.exitInfoView()
+                var deletecontext = $("div.C_ELEMENT.APPINFOCONTEXTMENU")
+                setTimeout(() => {
+                    deletecontext.remove()
+                }, 500);
+
             }
 
+        } else if (element.isPointerDown) {
+            //amount of lenght to cancel pointerdown
+            const hypotenuse = Math.pow(Math.pow(e.clientX - element.lastPointerPosition[0], 2) + Math.pow(e.clientY - element.lastPointerPosition[1], 2), .5)
+            //console.log("süre", Date.now() - element.lastPointerDown)
+            if (hypotenuse > 15) {
+                if (Date.now() - element.lastPointerDown > 250) {
+                    element.moveMode.enter(true)
+                } else {
+                    element.cancelPress()
+                }
+            }
+
+
+        } else if (element.parentElement.classList.contains("movingClone")) {
+            //console.log("clone varrr", element.parentElement.original)
+            var icon = element.parentElement
+            $(icon).css({
+                left: e.pageX + element.parentElement.original.lastPosition.left - element.parentElement.original.lastPointerPosition[0],
+                top: e.pageY + element.parentElement.original.lastPosition.top - element.parentElement.original.lastPointerPosition[1]
+            })
         }
     })
 }
@@ -74,44 +112,127 @@ const eventReloads = {
             element.cancelPress = function () {
                 cancelPress(element)
             }
+            element.moveMode = {
+                enter: function (withoutContextMenu) {
+                    springBoard.enterEditMode()
+                    $(element).parent().addClass("movemode")
+
+                    if (withoutContextMenu) {
+                        var icon = element
+                        element.cancelPress()
+                        homeScroller.cancel()
+                        var lastPosition = [$(icon).parent().offset().left, $(icon).parent().offset().top]
+                        Bridge.requestVibration(20)
+                        icon.backupParent = $(icon).parent().parent()
+                        $(icon).parent().removeClass("hold")
+                        // $("body").addClass("appinfoview")
+                        $(icon).removeClass("active").addClass("info")
+                        const clone = $(icon).parent().clone()
+                        clone[0].isOriginal = false
+                        icon.isOriginal = true
+                        clone[0].original = icon
+                        icon.clone = clone
+                        $("body").append(clone)
+                        clone.css({
+                            left: lastPosition[0],
+                            top: lastPosition[1]
+                        })
+                        setTimeout(() => {
+                            // springBoard.enterEditMode()
+
+                        }, 10);
+                        //   $(icon).trigger("pointerup")
+                    } else {
+
+                        //$(element.clone).trigger("pointerup")
+                    }
+
+                    $(element.clone).children("img").removeClass("info")
+
+
+
+                    $(element).addClass("moving")
+                    $(element.clone).addClass("movingClone")
+                },
+                leave: function () {
+                    $(element).removeClass("info")
+
+                    setTimeout(() => {
+                        $(element).removeClass("moving info")
+                        $(element.clone).remove()
+                        $(element).parent().removeClass("movemode")
+
+                    }, 200);
+                    // springBoard.exitEditMode()
+                }
+            }
         })
         const group = $("div.C_ELEMENT.APPICON > img.ICON")
         group.unbind();
         group.on("pointerdown", function (e) {
-            $(this).addClass("active")
-            this.isPointerDown = true
-            this.lastPointerDown = Date.now()
-            this.contextMenuTimer = setTimeout(() => {
-                $(this).trigger("contextmenu")
-            }, 600);
-            this.lastPosition = $(this).offset();
-            this.lastPointerPosition = [e.clientX, e.clientY];
+            if ($("body").hasClass("editmode")) {
+                /* $(this).addClass("active")
+                 this.isPointerDown = true
+                 this.lastPointerDown = Date.now()
+                 this.contextMenuTimer = setTimeout(() => {
+                     springBoard.exitInfoView(true)
+                     this.moveMode.enter()
+                     
+ 
+                     homeScroller.cancel()
+ 
+                     //$(this).trigger("contextmenu")
+                 }, 600);
+                 this.lastPosition = $(this).offset();
+                 this.lastPointerPosition = [e.pageX, e.pageY];
+                 console.log(this.relativePointerPosition)*/
+            } else {
+                $(this).addClass("active")
+                this.isPointerDown = true
+
+                this.lastPointerDown = Date.now()
+                this.contextMenuTimer = setTimeout(() => {
+                     
+ 
+                    $(this).trigger("contextmenu")
+                }, 600);
+                this.lastPosition = $(this).offset();
+                this.lastPointerPosition = [e.pageX, e.pageY];
+            }
 
         })
 
-        group.on("click", function () {
-            if (Date.now() - this.lastPointerDown > 300) {
-                return
-            }
-            const pn = $(this).parent().attr("packagename")
-            cancelPress(this)
-
-            if (pn == "com.tored.bridgelauncher" || pn == "web.bmdominatezz.bridgelauncher") {
-                Bridge.requestOpenBridgeSettings()
+        group.on("click", function (e) {
+            if ($("body").hasClass("editmode")) {
+                console.log(event.target)
             } else {
-                Bridge.requestLaunchApp(pn)
+                if (Date.now() - this.lastPointerDown > 300) {
+                    return
+                }
+                const pn = $(this).parent().attr("packagename")
+                cancelPress(this)
+
+                if (pn == "com.tored.bridgelauncher" || pn == "web.bmdominatezz.bridgelauncher") {
+                    Bridge.requestOpenBridgeSettings()
+                } else {
+                    Bridge.requestLaunchApp(pn)
+                }
             }
+
         })
 
         $(window).off("pointermove", onContextPointerMove)
         $(window).on("pointermove", onContextPointerMove)
         group.on("contextmenu", function (event) {
+            if ($("body").hasClass("editmodee")) return
+
             if (!!!event["originalEvent"]) {
                 homeScroller.cancel()
                 var lastPosition = [$(this).parent().offset().left, $(this).parent().offset().top]
                 this["isContextOn"] = true
                 Bridge.requestVibration(20)
                 cancelPress(this)
+                this.cancelPress()
                 this.backupParent = $(this).parent().parent()
                 this.appInfoTranslucentLayer = cupertinoElements.appInfoTranslucentLayer()
                 $(this).parent().addClass("hold")
@@ -131,28 +252,31 @@ const eventReloads = {
                         region = 3
                     }
                 }
-             
+
 
                 cupertinoElements.appInfoContextMenu(document.body,
                     [
                         {
-                            title: "Edit Home Screen", icon: "remove", action: function () {
+                            title: "Edit Home Screen", icon: "", action: function () {
                                 springBoard.exitInfoView()
                                 $("div.C_ELEMENT.APPINFOCONTEXTMENU").removeClass("open").addClass("close")
                                 var deletecontext = $("div.C_ELEMENT.APPINFOCONTEXTMENU")
                                 setTimeout(() => {
                                     deletecontext.remove()
                                 }, 500);
+                                springBoard.enterEditMode()
+
                             }
                         },
                         "seperator",
                         {
-                            title: "Remove App", icon: "remove", accent: true, action: function () {
+                            title: "Delete App", icon: "", accent: true, action: function () {
                                 springBoard.exitInfoView()
                                 $("div.C_ELEMENT.APPINFOCONTEXTMENU").removeClass("open").addClass("close")
                                 var deletecontext = $("div.C_ELEMENT.APPINFOCONTEXTMENU")
                                 Bridge.requestAppUninstall($(event.target).parent().attr("packagename"), true)
                                 setTimeout(() => {
+                                    nestedDock
                                     deletecontext.remove()
                                 }, 500);
                             }
@@ -203,6 +327,9 @@ const eventReloads = {
                      top: lastPosition.top + "px"
                  })*/
                 const clone = $(this).parent().clone()
+                clone[0].isOriginal = false
+                this.isOriginal = true
+                clone[0].original = this
                 this.clone = clone
                 $("body").append(clone)
                 clone.css({
@@ -222,16 +349,17 @@ const eventReloads = {
     },
     appInfoContextMenu: function (element) {
         var menu = $(element)
-        console.log(element[0])
-
         $(window).off("pointerup", window["appInfoContextMenuEventHandler"])
 
         window["appInfoContextMenuEventHandler"] = eventhandler
         var eventhandler = function (e) {
-            console.log("hassiktir", menu.children(".active")[0].onAction)
+            $("div.C_ELEMENT.APPICON > img.ICON").each(function (index, element) {
+                element.isContextOn = false
+            })
             menu.children(".active")[0].onAction()
         }
         $(window).on("pointerup", eventhandler)
     }
 }
 export default eventReloads;
+//
