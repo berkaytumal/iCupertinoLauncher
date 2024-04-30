@@ -1,0 +1,1 @@
+export function formatString(r){return function(){var t=Array.prototype.slice.call(arguments);return r.replace(/{(\d+)}/g,(function(r,n){return void 0!==t[n]?t[n]:r}))}}
