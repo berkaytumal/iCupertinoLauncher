@@ -2,3 +2,5 @@
 /node_modules
 /mock
 test.html
+assets/style.css
+assets/script.js
