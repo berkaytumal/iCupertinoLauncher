@@ -5,6 +5,13 @@
   --window-inset-top: 0px;
   --window-inset-right: 0px;
   --window-inset-bottom: 0px;
+
+  @media (prefers-color-scheme: light) {
+    --accent: var(--colors-blue);
+  }
+  @media (prefers-color-scheme: dark) {
+    --accent: var(--colors-blue-dark);
+  }
 }
 * {
   user-select: none;
@@ -20,13 +27,13 @@ body {
   @media (prefers-color-scheme: light) {
     #dock,
     #dockBg {
-      @include material-presets(M_ULTRATHINLIGHT);
+      // @include material-presets(M_ULTRATHINLIGHT);
     }
   }
   @media (prefers-color-scheme: dark) {
     #dock,
     #dockBg {
-      @include material-presets(M_ULTRATHINDARK);
+      //  @include material-presets(M_ULTRATHINDARK);
     }
   }
 }
