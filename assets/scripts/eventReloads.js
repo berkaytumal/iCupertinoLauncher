@@ -19,7 +19,27 @@ var allappsarchive = []
 window["allappsarchive"] = allappsarchive
 
 function windowGlobalPointerUp() {
+    setTimeout(() => {
+        $("div.C_ELEMENT.APPICON > img.ICON").each(function (index, element) {
+            element["isContextOn"] = false
+        })
+    }, 10);
+    console.log("ajfhgasdşkfjlghadsjkf")
+    $("body > div.C_ELEMENT.APPICON").each(function (index, element) {
 
+        //console.log(element.original.moveMode)
+        element.original.cancelPress()
+        element.original.moveMode.leave()
+        console.log("hey",
+            element.original.lastPosition.left, element.original.lastPointerPosition[0]
+        )
+        $(element).css({
+            left: $(element.original).offset().left + 0,
+            top: $(element.original).offset().top + 0,
+            transition: "var(--soft2anim) .2s"
+        })//.addClass("hide")
+        //console.log(element.original.lastPosition.left)
+    })
 }
 $(window).on("pointerup", windowGlobalPointerUp)
 function onContextPointerMove(e) {
@@ -50,6 +70,8 @@ function onContextPointerMove(e) {
 
                 element.moveMode.enter()
                 e.stopPropagation()
+                $(window).on("pointerup", windowGlobalPointerUp)
+
             }
 
             $(element.appInfoContextMenu).children("div.C_ELEMENT.APPINFOCONTEXTMENUITEM").removeClass("active").addClass("s")
@@ -90,7 +112,28 @@ function onContextPointerMove(e) {
 
 
         } else if (element.parentElement.classList.contains("movingClone")) {
-            //console.log("clone varrr", element.parentElement.original)
+
+            var originalIcon = $(element.parentElement.original.parentElement)
+            var availableIndex = springBoard.closestAvailableSpot(e.pageX - 30, e.pageY - 40)
+            var destination = availableIconMoveSpots[availableIndex]
+            if (!element.lastMovePosition) element.lastMovePosition = element.parentElement.original.lastPointerPosition
+            var speed = Math.hypot(e.pageX - element.lastMovePosition[0], e.pageY - element.lastMovePosition[1])
+            console.log("speed", speed)
+            element.lastMovePosition = [e.pageX, e.pageY]
+            if (element.lastAvailableSpot != availableIndex) {
+                if (speed > 2) {
+                    element.lastAvailableSpot = availableIndex
+                    originalIcon.detach()
+                    springBoard.insertAt(destination.parent, destination.index, originalIcon)
+                    var calcspeed = 1000 / speed
+                    setTimeout(() => {
+                        console.log("hoopp")
+                        springBoard.relocateIcons(true)
+                    }, calcspeed > 1000 ? 1000 : calcspeed)
+                }
+
+            }
+            console.log()
             var icon = element.parentElement
             $(icon).css({
                 left: e.pageX + element.parentElement.original.lastPosition.left - element.parentElement.original.lastPointerPosition[0],
@@ -171,29 +214,21 @@ const eventReloads = {
         group.unbind();
         group.on("pointerdown", function (e) {
             if ($("body").hasClass("editmode")) {
-                /* $(this).addClass("active")
-                 this.isPointerDown = true
-                 this.lastPointerDown = Date.now()
-                 this.contextMenuTimer = setTimeout(() => {
-                     springBoard.exitInfoView(true)
-                     this.moveMode.enter()
-                     
- 
-                     homeScroller.cancel()
- 
-                     //$(this).trigger("contextmenu")
-                 }, 600);
-                 this.lastPosition = $(this).offset();
-                 this.lastPointerPosition = [e.pageX, e.pageY];
-                 console.log(this.relativePointerPosition)*/
+                $(this).addClass("active")
+                this.isPointerDown = true
+                this.lastPointerDown = Date.now()
+                this.contextMenuTimer = setTimeout(() => {
+                    this.moveMode.enter(true)
+                    homeScroller.cancel()
+                }, 600);
+                this.lastPosition = $(this).offset();
+                this.lastPointerPosition = [e.pageX, e.pageY];
+                console.log(this.relativePointerPosition)
             } else {
                 $(this).addClass("active")
                 this.isPointerDown = true
-
                 this.lastPointerDown = Date.now()
                 this.contextMenuTimer = setTimeout(() => {
-                     
- 
                     $(this).trigger("contextmenu")
                 }, 600);
                 this.lastPosition = $(this).offset();
@@ -224,8 +259,10 @@ const eventReloads = {
         $(window).off("pointermove", onContextPointerMove)
         $(window).on("pointermove", onContextPointerMove)
         group.on("contextmenu", function (event) {
-            if ($("body").hasClass("editmodee")) return
-
+            if ($("body").hasClass("editmodee")) {
+                console.log("afa")
+                return
+            }
             if (!!!event["originalEvent"]) {
                 homeScroller.cancel()
                 var lastPosition = [$(this).parent().offset().left, $(this).parent().offset().top]
@@ -341,6 +378,7 @@ const eventReloads = {
                 }, 0);
                 event.preventDefault()
             } else {
+                console.log("fgaga")
                 event.preventDefault()
                 event.stopPropagation()
             }

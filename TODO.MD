@@ -7,6 +7,7 @@
 - [ ] User can move an app
 - [ ] User can move an app to dock
 - [ ] User can move an app to another page
+- [ ] Folder support
 - [ ] App drawer
 - [ ] Widgets support
 - [ ] Partial ZenHTML support (maybe?)

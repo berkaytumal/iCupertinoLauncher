@@ -16,6 +16,11 @@ function transformValue(y, x, z) {
 var appUninstallIconCache = {
   ls: [0, 0]
 }*/
+
+window.availableIconMoveSpots = [
+  //{parent: $("#dock")[0], index:0, position: [0,0]}
+
+]
 const exampleDB = function () {
   return {
     placement: {
@@ -146,6 +151,40 @@ const replaceApps = function (resp) {
 
 }
 const springBoard = {
+  changeZoom: function (scale) {
+    scale = scale == 0 ? 1 : scale < 0.1 ? 0.1 : scale > 10 ? 10 : scale
+    $("body").css("zoom", scale)
+    springBoard.relocateIcons(true)
+  },
+  closestAvailableSpot: function (x, y) {
+    let closestIndex = -1;
+    let closestDistance = Infinity;
+
+    availableIconMoveSpots.forEach((item, index) => {
+      const positionX = item.position[0];
+      const positionY = item.position[1];
+
+      const distance = Math.sqrt((x - positionX) ** 2 + (y - positionY) ** 2);
+
+      if (distance < closestDistance) {
+        closestIndex = index;
+        closestDistance = distance;
+      }
+    });
+    return closestIndex;
+  },
+  insertAt: function (th, index, element) {
+    index = index < 0 ? 0 : index
+    index = index > $(th).children().length ? $(th).children().length : index
+    if (index != $(th).children().length) {
+      $(element).insertBefore($(th).children().eq(index));
+    } else {
+      $(th).append(element);
+
+    }
+
+    return $(element);
+  },
   findLabelFromPackageName: function (packageName) {
     var apps = window["allappsarchive"]
     for (let i = 0; i < window["allappsarchive"].length; i++) {
@@ -201,7 +240,7 @@ const springBoard = {
       clearTimeout(window["relocateIconsTransitionTimeout"])
       window["relocateIconsTransitionTimeout"] = setTimeout(() => {
         $("body").removeClass("iconsMoveTransition")
-      }, 300);
+      }, 500);
     } else {
       clearTimeout(window["relocateIconsTransitionTimeout"])
       $("body").removeClass("iconsMoveTransition")
@@ -230,7 +269,7 @@ const springBoard = {
     var rect = [100, 100, 0, $("#dock").height() + $("#dock").css("bottom").slice(0, -2) * 2]
     if (isTablet()) {
       rect[0] = document.body.clientWidth * 0.075 + 40 //50
-      
+
       rect[1] = document.body.clientHeight * 0.06 + 15
       rect[2] = rect[0]
       rect[3] = document.body.clientHeight * 0.06 + 15 + 120
@@ -275,7 +314,7 @@ const springBoard = {
       }
     }
     rect[1] += window.windowinsets.top
-    if (rect[0] > (nestedDock ?  30 : 31) && !isTablet()) rect[2] = rect[0] = nestedDock ? 30 : 31
+    if (rect[0] > (nestedDock ? 30 : 31) && !isTablet()) rect[2] = rect[0] = nestedDock ? 30 : 31
     // rect[3] = 0
     const convrect = [
       rect[0],
@@ -379,7 +418,7 @@ const springBoard = {
         left = 19
         if (left + 12 > rect[0] && iconcount == 4) {
           left = rect[0] - 12;
-          width = myDock.width() - ( rect[0] - 12) * 2 - iconsize + 4
+          width = myDock.width() - (rect[0] - 12) * 2 - iconsize + 4
         }
         var pseudowidth = (4 - 1) * iconsize + (4 - 2) * 19 + 29
         var pseudoleft = myDock.css("width").slice(0, -2) / 2 - (pseudowidth + iconsize) / 2
@@ -403,6 +442,208 @@ const springBoard = {
           })
           //console.log($(element).css("left"), $(element).css("top"))
         })
+      }
+      /* myDock.children().each(function (index, element) {
+         console.log(index, index, iconcount)
+         $(element).css({
+           left: `${(window["TABLET_VIEW"] ? translateX : translateX)}px`,
+           top: `${window["TABLET_VIEW"] ? 17 : 19}px`,
+         })
+         console.log($(element).css("left"), $(element).css("top"))
+       })*/
+    })();
+    if (!window["homeScroller"]) {
+      console.log("homescroller yok")
+
+
+    } else if (animate == false) {
+
+      springBoard.relocateIconMovingSpots()
+
+
+      $(`#pages > div:nth-child(${homeScroller.getCurrentPage().pageX + 1})`).children("div.C_ELEMENT.APPICON").each(function (index, element) {
+        var el = $(element)
+        var pos = el.offset()
+        pos.left += iconsize * .5, pos.top += iconsize * .5
+        var height = document.body.clientHeight - 120
+        el.css({
+          "--centerX": pos.left - document.body.clientWidth / 2,
+          "--centerY": pos.top - height / 2,
+          "--centerHypot": Math.hypot(pos.left - document.body.clientWidth / 2, pos.top - height / 2),
+        })
+      })
+    }
+
+
+  },
+  relocateIconMovingSpots: function () {
+
+    availableIconMoveSpots = []
+    window.windowinsets = JSON.parse(Bridge.getSystemBarsWindowInsets())
+    //if (window["inEditMode"]) window.windowinsets.top += 30
+    var [smallestSize, biggestSize] = [Math.min(document.body.clientWidth, document.body.clientHeight), Math.max(document.body.clientWidth, document.body.clientHeight)]
+    var iconsize = Number($("body").css("--icon-size").slice(0, -2));
+    var nestedDock = false
+    if (biggestSize < 700) {
+      nestedDock = true
+    } else {
+    }
+    const config = springBoard.getDB()
+    const grid = config.temp.grid
+    console.log
+    var [column, row] = [grid[0], grid[1]]
+
+    var landscape = (document.body.clientWidth > document.body.clientHeight)
+    if (landscape) [column, row] = [grid[1], grid[0]]
+    var rect = [100, 100, 0, $("#dock").height() + $("#dock").css("bottom").slice(0, -2) * 2]
+    if (isTablet()) {
+      rect[0] = document.body.clientWidth * 0.075 + 40 //50
+
+      rect[1] = document.body.clientHeight * 0.06 + 15
+      rect[2] = rect[0]
+      rect[3] = document.body.clientHeight * 0.06 + 15 + 120
+    } else {
+      if (landscape) {
+        rect[0] = 32
+        rect[1] = 12
+        rect[2] = 32
+        rect[3] = 120
+      }
+      else {
+
+        if (document.body.clientHeight < 700) {
+          if (document.body.clientHeight < 670) {
+            rect[0] = document.body.clientWidth * 0.2 + -45
+            rect[2] = 20 / (390 / document.body.clientWidth)
+            rect[3] = document.body.clientHeight * 0.02 + 120
+            rect[1] = rect[0] / 2
+          } else {
+            rect[0] = document.body.clientWidth * 0.2 + -45
+            rect[2] = 20 / (390 / document.body.clientWidth)
+            rect[3] = document.body.clientHeight * 0.02 + 120
+            rect[1] = rect[0] / 1
+          }
+          var maxheight = (document.body.clientWidth - rect[2] - rect[0]) / 3 * 3 * 1.75
+          maxheight = maxheight < 450 ? 450 : maxheight
+          if (document.body.clientHeight - rect[3] - rect[1] >= maxheight) rect[3] = document.body.clientHeight - (rect[1] + maxheight)
+
+        } else {
+          rect[0] = document.body.clientWidth * 0.09 + 0
+          rect[1] = document.body.clientWidth * 0.2 + 0 + 120
+          rect[3] = document.body.clientHeight * 0.06 + 15 + 100
+          const maxheight = (document.body.clientWidth - rect[2] - rect[0]) / 3 * 3 * 1.25
+          if (document.body.clientHeight - rect[3] - rect[1] >= maxheight) rect[3] = document.body.clientHeight - (rect[1] + maxheight)
+          rect[1] = rect[0]
+
+        }
+        rect[2] = rect[0]
+        rect[3] += window.windowinsets.bottom
+
+
+      }
+    }
+    rect[1] += window.windowinsets.top
+    if (rect[0] > (nestedDock ? 30 : 31) && !isTablet()) rect[2] = rect[0] = nestedDock ? 30 : 31
+    // rect[3] = 0
+    const convrect = [
+      rect[0],
+      rect[1],
+      document.body.clientWidth - rect[2] - rect[0],
+      document.body.clientHeight - rect[3] - rect[1]]
+    /*
+        if (document.body["TABLET_VIEW"]) {
+     
+        } else {
+          if (document.body.clientHeight < 600) {
+            convrect[3] = (convrect[3] - rect[1]) < 420 ? 420 - rect[1] : convrect[3]
+          } else {
+            convrect[3] = (convrect[3] - rect[1]) < 600 ? 600 - rect[1] : convrect[3]
+          }
+        }
+    */
+    function relocatePageIcons(index) {
+
+      const [lx, ly] = [index % column, Math.floor(index / column)]
+      const [cx, cy] = [lx / (column - 1), ly / (row - 1)]
+      availableIconMoveSpots.push({ parent: $(`#pages > div:nth-child(${homeScroller.getCurrentPage().pageX + 1})`)[0], index: index, position: [convrect[0] + cx * (convrect[2] - iconsize), convrect[1] + cy * (convrect[3] - iconsize - 20)] })
+    }
+    for (let i = 0; i < springBoard.getDB().temp.grid[0] * springBoard.getDB().temp.grid[1]; i++) {
+      relocatePageIcons(i)
+      //  console.log(i)
+
+    }
+
+    (function relocateDockIcons(params) {
+      var iconcount = Number(myDock.children("div.C_ELEMENT.APPICON").length)
+      var restedDock = $("body").css("--screenradius").slice(0, -2) <= 18
+      var maxicons = isTablet() ? 999 : 4
+      var plusone = myDock.children().length + 1 > maxicons ? maxicons : myDock.children().length + 1
+      iconcount = plusone
+      var myDockOffset = myDock.offset()
+      var imaginaryWidth = (plusone * iconsize + (plusone + 1) * 17) //myDock.css("width")
+      myDockOffset.left += (myDock.width() - imaginaryWidth) / 2
+
+
+      if (!!document.body["TABLET_VIEW"]) {
+        var width = (iconcount - 1) * iconsize + (iconcount - 1) * 17
+        var left = imaginaryWidth / 2 - (width + iconsize) / 2
+        if (!restedDock) {
+          if (width + 17 * 2 + iconsize > myDock.css("min-width").slice(0, -2)) {
+            for (let index = 0; index < plusone; index++) {
+              const tr = index / (iconcount - 1)
+              availableIconMoveSpots.push({ parent: $(`#dock`)[0], index: index, position: [(index - 0) * iconsize + 17 * (index + 1) + myDockOffset.left, 17 + myDockOffset.top] })
+            }
+
+          } else {
+
+            for (let index = 0; index < plusone; index++) {
+              const tr = index / (iconcount - 1)
+              availableIconMoveSpots.push({ parent: $(`#dock`)[0], index: index, position: [left + --width * tr + myDockOffset.left, 19 + myDockOffset.top] })
+            }
+
+
+          }
+        } else {
+
+          var width = ((iconcount * iconsize + (iconcount + 1) * 17) * 5 + document.body.clientWidth) / 6
+          var left = imaginaryWidth / 2 - (width + iconsize) / 2
+          for (let index = 0; index < plusone; index++) {
+            const tr = index / (iconcount - 1)
+            availableIconMoveSpots.push({ parent: $(`#dock`)[0], index: index, position: [left + --width * tr + myDockOffset.left, 19 + myDockOffset.top] })
+          }
+
+        }
+
+
+      } else {
+        //MAX ICON 
+        if (iconcount > 4) {
+          iconcount = Number(myDock.children("div.C_ELEMENT.APPICON").length)
+          iconsize = Number($("body").css("--icon-size").slice(0, -2))
+        }
+
+        width = imaginaryWidth - 19 * 2 - iconsize + 4
+        left = 19
+        if (left + 12 > rect[0] && iconcount == 4) {
+          left = rect[0] - 12;
+          width = imaginaryWidth - (rect[0] - 12) * 2 - iconsize + 4
+        }
+        var pseudowidth = (4 - 1) * iconsize + (4 - 2) * 19 + 29
+        var pseudoleft = imaginaryWidth / 2 - (pseudowidth + iconsize) / 2
+
+        if (iconcount <= 3) {
+          var width = (iconcount - 1) * iconsize + (iconcount - 2) * 29 + 19
+          var left = imaginaryWidth / 2 - (width + iconsize) / 2
+        } else if ((iconcount == 4 && pseudoleft > 100)) {
+          var width = (iconcount - 1) * iconsize + (iconcount - 2) * 116 + 19
+          var left = imaginaryWidth / 2 - (width + iconsize) / 2
+        } else {
+        }
+
+        for (let index = 0; index < plusone; index++) {
+          const tr = index / (iconcount - 1)
+          availableIconMoveSpots.push({ parent: $(`#dock`)[0], index: index, position: [left + --width * tr + myDockOffset.left, 19 + myDockOffset.top] })
+        }
       }
       /* myDock.children().each(function (index, element) {
          console.log(index, index, iconcount)
@@ -815,7 +1056,20 @@ const springBoard = {
 
   },
   checkIsDarkSchemePreferred: () => window?.matchMedia?.('(prefers-color-scheme:dark)')?.matches ?? false,
-  isDarkSchemePreferred: false
+  isDarkSchemePreferred: false,
+  animate: {
+    intro: function () {
+      springBoard.relocateIcons()
+      var page = $(`#pages > div:nth-child(${homeScroller.getCurrentPage().pageX + 1})`).removeClass("animateIntro").css("animation", "none")
+
+      page.addClass("animateIntro").css("animation", "")
+      clearTimeout(window["introTimeout"])
+      window["introTimeout"] = setTimeout(() => {
+        page.removeClass("animateIntro")
+        delete window["introTimeout"]
+      }, 2000);
+    }
+  }
 }
 export default springBoard;
 

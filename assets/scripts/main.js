@@ -1,7 +1,7 @@
 import jquery from "jquery";
 var $ = jquery;
 var jQuery = jquery;
-
+window.$ = window.jQuery = jquery
 import webpackVariables from "webpackVariables";
 window["webpackVariables"] = webpackVariables;
 window.windowinsets = document.body.windowinsets = {
@@ -195,7 +195,6 @@ springBoard.relocateIcons();
 var center = [document.body.clientWidth / 2, document.body.clientHeight / 2];
 
 springBoard.reloadApps(function () {
-  springBoard.relocateIcons();
 
   const homeScroller = new BScroll($("#pages-wrapper")[0], {
     scrollX: true,
@@ -216,6 +215,9 @@ springBoard.reloadApps(function () {
     tabletThreshold: 0,
     threshold: 0,
   });
+  window["homeScroller"] = homeScroller
+  springBoard.relocateIcons();
+  springBoard.relocateIconMovingSpots()
   homeScroller["cancel"] = function () {
     const scrollContainer = document.querySelector("#pages-wrapper");
 
@@ -353,18 +355,18 @@ setTimeout(() => {
 */
 
 $(window).on("pointerdown", function (event) {
+  clearTimeout(window["entereditmodetimeout"]);
   if (event.target.id != "dock" && !event.target.classList.contains("PAGEGRID"))
     return;
-  clearTimeout(window["entereditmodetimeout"]);
   window["entereditmodetimeout"] = setTimeout(() => {
     springBoard.enterEditMode();
   }, 1000);
   window["editmodeprevios"] = window["inEditMode"];
 });
 $(window).on("pointerup", function (event) {
+  clearTimeout(window["entereditmodetimeout"]);
   if (event.target.id != "dock" && !event.target.classList.contains("PAGEGRID"))
     return;
-  clearTimeout(window["entereditmodetimeout"]);
 });
 $(window).on("click", function (event) {
   if (event.target.id != "dock" && !event.target.classList.contains("PAGEGRID"))
@@ -461,9 +463,15 @@ window.finishLoading = function finishLoading() {
   setTimeout(() => {
     function continueLoad() {
       $("#loader").addClass("hide");
+      springBoard.changeZoom(1.05)
+      springBoard.animate.intro()
+
       setTimeout(() => {
         $("#loader").remove();
         $("#loaderstyle").remove();
+
+
+
       }, 300);
     }
     if (
@@ -551,3 +559,7 @@ function startUpSequence() {
     }
   })();
 }
+
+setTimeout(() => {
+  
+}, 1000);

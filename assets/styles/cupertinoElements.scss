@@ -70,8 +70,28 @@ $material-presets: (
 /*APPICON*/
 .C_ELEMENT {
   &.APPICON {
+    .C_ELEMENT.PAGEGRID.animateIntro & {
+      will-change: transform;
+      transform-style: preserve-3d;
+      //animation: animateIntro calc(.5s + var(--centerHypot) * 0.003s) cubic-bezier(0.4, 1.125, 0.4, 1) forwards;
+      animation: animateIntro calc(2s) cubic-bezier(0.4, 1.05, 0.4, 1) forwards;
+
+      body.nestedDock & {
+        animation-timing-function: cubic-bezier(0.3, 1, 0.4, 1) !important;
+      }
+      transform-origin: calc(var(--centerX) * -1px + var(--icon-size) * 0.5)
+        calc(var(--centerY) * -1px + var(--icon-size) * 0.5);
+      @keyframes animateIntro {
+        from {
+          transform: perspective(200px) translateZ(calc(500px + var(--centerHypot) * 10px));
+        }
+        to {
+          transform: perspective(200px) translateZ(0px);
+        }
+      }
+    }
     body.iconsMoveTransition & {
-      transition: var(--softanim) 0.3s;
+      transition: var(--softanim) 0.5s;
     }
     z-index: 1;
     &.hold {
@@ -278,6 +298,7 @@ $material-presets: (
       will-change: transform;
 
       --easing: ease-out;
+      /*
       &:nth-child(4n) {
         animation: 0.22s keyframes2 infinite var(--easing);
       }
@@ -308,6 +329,8 @@ $material-presets: (
           transform: rotate(1.7deg);
         }
       }
+
+      */
     }
     &.movingClone {
       transition: 0.25s var(--jump3anim);
@@ -317,14 +340,13 @@ $material-presets: (
     }
     &.movemode,
     &.movingClone {
-     
       & > div.C_ELEMENT.APPICONDELETE,
       & > p.STRING {
         opacity: 0 !important;
       }
     }
-    &.movemode:not(.movingClone){
-      img{
+    &.movemode:not(.movingClone) {
+      img {
         opacity: 0;
       }
     }

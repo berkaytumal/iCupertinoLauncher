@@ -61,8 +61,33 @@
         <div id="dockBg" class="M_ULTRATHINLIGHT MATERIAL"></div>
     </div>
     <img id="system_wallpaper" src="assets/drawable/wallpaper.png">
-    <canvas id="movingtest"></canvas>
+
     <script src="/assets/script.js"></script>
+    
+   <!--  <canvas id="movingtest"></canvas>
+
+    <script>
+        const canvas = $("#movingtest")[0]
+        const ctx = canvas.getContext("2d")
+        window.renderMovingTest = function renderMovingTest() {
+            canvas.width = window.innerWidth
+            canvas.height = window.innerHeight
+            if (availableIconMoveSpots) {
+                availableIconMoveSpots.forEach(element => {
+                    ctx.strokeRect(element.position[0], element.position[1], 60, 60)
+                });
+            }
+        }
+        setInterval(renderMovingTest, 10);
+    </script>
+    <style>
+        #movingtest {
+            position: absolute;
+            background-color: rgb(255, 255, 255, .3);
+            z-index: 9999;
+            pointer-events: none;
+        }
+    </style>-->
 </body>
 
 </html>
