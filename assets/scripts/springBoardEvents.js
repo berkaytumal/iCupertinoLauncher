@@ -154,7 +154,7 @@ const springBoard = {
   changeZoom: function (scale) {
     scale = scale == 0 ? 1 : scale < 0.1 ? 0.1 : scale > 10 ? 10 : scale
     $("body").css("zoom", scale)
-    springBoard.relocateIcons(true)
+    springBoard.relocateIcons()
   },
   closestAvailableSpot: function (x, y) {
     let closestIndex = -1;
