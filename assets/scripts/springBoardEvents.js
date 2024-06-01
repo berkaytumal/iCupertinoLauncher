@@ -233,7 +233,6 @@ const springBoard = {
       return resetDB()
     }
   },
-
   relocateIcons: function (animate = false) {
     if (animate == true) {
       $("body").addClass("iconsMoveTransition")
@@ -985,7 +984,10 @@ const springBoard = {
       callback()
     },
     dock: function () {
-      springBoard.drawFakeBlur.applyToElement($($("body").hasClass("nestedDock") ? "#dockBg" : "#dock")[0], window.matchMedia('(prefers-color-scheme: dark)').matches ? "blur(50px) saturate(1.1) brightness(0.8) contrast(1.1) " : "blur(50px) saturate(1.1) brightness(1.5)")
+      springBoard.drawFakeBlur.applyToElement(
+        $($("body").hasClass("nestedDock") ? "#dockBg" : "#dock")[0],
+        window.matchMedia('(prefers-color-scheme: dark)').matches ? "blur(50px) saturate(1.1) brightness(0.83) contrast(1.1) " : "blur(50px) saturate(1.1) brightness(1.2)"
+      )
 
 
     },

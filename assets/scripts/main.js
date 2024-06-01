@@ -3,6 +3,7 @@ var $ = jquery;
 var jQuery = jquery;
 window.$ = window.jQuery = jquery
 import webpackVariables from "webpackVariables";
+
 window["webpackVariables"] = webpackVariables;
 window.windowinsets = document.body.windowinsets = {
   left: 0,
@@ -15,7 +16,6 @@ const fakeBlurCanvas = document.createElement("canvas");
 window.fakeBlurCanvas = fakeBlurCanvas;
 // set that will hold all registered event listeners
 const bridgeEvents = new Set();
-
 // upon receiving an event, forward it to all listeners
 window.onBridgeEvent = (...event) => {
   bridgeEvents.forEach((l) => l(...event));
@@ -36,8 +36,9 @@ import cupertinoElements from "./cupertinoElements.js";
 import eventReloads from "./eventReloads.js";
 import springBoard from "./springBoardEvents.js";
 import BScroll from "better-scroll";
-
+import startUpSequence from "./libraries/startUpSequence.js";
 import easings from "../scripts/libraries/easings.js";
+import iconizer from "./libraries/iconizer.js"
 window["cupertinoElements"] = cupertinoElements;
 window["springBoard"] = springBoard;
 window["BScroll"] = BScroll;
@@ -194,86 +195,87 @@ springBoard.relocateIcons();
 
 var center = [document.body.clientWidth / 2, document.body.clientHeight / 2];
 
-springBoard.reloadApps(function () {
+window.loadApps = function loadApps() {
+  springBoard.reloadApps(function () {
 
-  const homeScroller = new BScroll($("#pages-wrapper")[0], {
-    scrollX: true,
-    scrollY: false,
-    momentum: false,
-    bounce: true,
-    disableMouse: false,
-    disableTouch: false,
-    slide: {
-      loop: false,
-      autoplay: false,
+    const homeScroller = new BScroll($("#pages-wrapper")[0], {
+      scrollX: true,
+      scrollY: false,
+      momentum: false,
+      bounce: true,
+      disableMouse: false,
+      disableTouch: false,
+      slide: {
+        loop: false,
+        autoplay: false,
+        threshold: 0,
+      },
+      HWCompositing: false,
+      click: true,
+      tap: "tap",
+      phoneThreshold: 0,
+      tabletThreshold: 0,
       threshold: 0,
-    },
-    HWCompositing: false,
-    click: true,
-    tap: "tap",
-    phoneThreshold: 0,
-    tabletThreshold: 0,
-    threshold: 0,
-  });
-  window["homeScroller"] = homeScroller
-  springBoard.relocateIcons();
-  springBoard.relocateIconMovingSpots()
-  homeScroller["cancel"] = function () {
-    const scrollContainer = document.querySelector("#pages-wrapper");
-
-    // To simulate a pointer up event
-    const touchEndEvent = new TouchEvent("touchend", {
-      bubbles: true,
-      cancelable: true,
-      view: window,
     });
-    // To simulate a pointer up event
-    const mouseUpEvent = new MouseEvent("mouseup", {
-      bubbles: true,
-      cancelable: true,
-      view: window,
-    });
-    scrollContainer.dispatchEvent(mouseUpEvent);
-    scrollContainer.dispatchEvent(touchEndEvent);
-  };
-  window["homeScroller"] = homeScroller;
-
-  const bs = window["homeScroller"];
-  bs.scroller.translater.hooks.on(
-    "beforeTranslate",
-    (transformStyle, point) => {
-      clearTimeout(window["entereditmodetimeout"]);
-      return;
-      var transformString = transformStyle[0];
-      var pxRegex = /-?\d+\.?\d*/;
-      var matches = transformString.match(pxRegex);
-      if (matches) {
-        var pxValue = parseFloat(matches[0]); // Convert string to float
-        var roundedPxValue = Math.round(pxValue);
-        transformStyle[0] = "translateX(" + roundedPxValue + "px)";
+    window["homeScroller"] = homeScroller
+    springBoard.relocateIcons();
+    springBoard.relocateIconMovingSpots()
+    homeScroller["cancel"] = function () {
+      const scrollContainer = document.querySelector("#pages-wrapper");
+  
+      // To simulate a pointer up event
+      const touchEndEvent = new TouchEvent("touchend", {
+        bubbles: true,
+        cancelable: true,
+        view: window,
+      });
+      // To simulate a pointer up event
+      const mouseUpEvent = new MouseEvent("mouseup", {
+        bubbles: true,
+        cancelable: true,
+        view: window,
+      });
+      scrollContainer.dispatchEvent(mouseUpEvent);
+      scrollContainer.dispatchEvent(touchEndEvent);
+    };
+    window["homeScroller"] = homeScroller;
+  
+    const bs = window["homeScroller"];
+    bs.scroller.translater.hooks.on(
+      "beforeTranslate",
+      (transformStyle, point) => {
+        clearTimeout(window["entereditmodetimeout"]);
+        return;
+        var transformString = transformStyle[0];
+        var pxRegex = /-?\d+\.?\d*/;
+        var matches = transformString.match(pxRegex);
+        if (matches) {
+          var pxValue = parseFloat(matches[0]); // Convert string to float
+          var roundedPxValue = Math.round(pxValue);
+          transformStyle[0] = "translateX(" + roundedPxValue + "px)";
+        }
+  
+        //$("div.C_ELEMENT.APPICON > .ICON").trigger("pointerup")
       }
-
-      //$("div.C_ELEMENT.APPICON > .ICON").trigger("pointerup")
-    }
-  );
-  bs.scroller.actions.hooks.on("scrollStart", () => {
-    eventReloads.appIcon();
-    $("#pages").addClass("scrollHelper");
-    $("div.C_ELEMENT.APPICON > img.ICON.active").each((index, element) => {
-      element.cancelPress();
-      element.classList.add("cancelled");
+    );
+    bs.scroller.actions.hooks.on("scrollStart", () => {
+      eventReloads.appIcon();
+      $("#pages").addClass("scrollHelper");
+      $("div.C_ELEMENT.APPICON > img.ICON.active").each((index, element) => {
+        element.cancelPress();
+        element.classList.add("cancelled");
+      });
+      $("body").addClass("scrolling");
     });
-    $("body").addClass("scrolling");
+    bs.on("scrollEnd", () => {
+      $("body").removeClass("scrolling");
+      springBoard.drawFakeBlur.appUninstallIcon();
+      //  drawAppUninstallIconBG()
+    });
+    $(window).on("pointerup", function () { });
+  
   });
-  bs.on("scrollEnd", () => {
-    $("body").removeClass("scrolling");
-    springBoard.drawFakeBlur.appUninstallIcon();
-    //  drawAppUninstallIconBG()
-  });
-  $(window).on("pointerup", function () { });
-
-
-});
+}
 $(window).on("contextmenu", function (event) {
   event.preventDefault();
 });
@@ -413,28 +415,28 @@ function blurBack(element, radius) {
 // Usage example
 blurBack(document.getElementById('blurryDiv'), 10); // Blur the background of #blurryDiv with radius 10px
 */
+window.redrawWallpaperCache = function redrawWallpaperCache() {
+  fakeBlurCanvas.width = window.innerWidth;
+  fakeBlurCanvas.height = window.innerHeight;
+  var canvas = fakeBlurCanvas;
+  var ctx = canvas.getContext("2d");
+  var img = $("#system_wallpaper")[0];
+  // Calculate the scale to fit the image within the canvas while maintaining aspect ratio
+  const scaleFactor = Math.max(
+    canvas.width / img.naturalWidth,
+    canvas.height / img.naturalHeight
+  );
+  const scaledWidth = img.naturalWidth * scaleFactor;
+  const scaledHeight = img.naturalHeight * scaleFactor;
+  const x = (canvas.width - scaledWidth) / 2;
+  const y = (canvas.height - scaledHeight) / 2;
 
+  // Clear the canvas and draw the image
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.drawImage(img, x, y, scaledWidth, scaledHeight);
+}
 $(window).on("load", function () {
-  function redrawWallpaperCache() {
-    fakeBlurCanvas.width = window.innerWidth;
-    fakeBlurCanvas.height = window.innerHeight;
-    var canvas = fakeBlurCanvas;
-    var ctx = canvas.getContext("2d");
-    var img = $("#system_wallpaper")[0];
-    // Calculate the scale to fit the image within the canvas while maintaining aspect ratio
-    const scaleFactor = Math.max(
-      canvas.width / img.naturalWidth,
-      canvas.height / img.naturalHeight
-    );
-    const scaledWidth = img.naturalWidth * scaleFactor;
-    const scaledHeight = img.naturalHeight * scaleFactor;
-    const x = (canvas.width - scaledWidth) / 2;
-    const y = (canvas.height - scaledHeight) / 2;
 
-    // Clear the canvas and draw the image
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(img, x, y, scaledWidth, scaledHeight);
-  }
   $(window).on("resize", redrawWallpaperCache);
   redrawWallpaperCache();
 
@@ -443,7 +445,6 @@ $(window).on("load", function () {
   });
   springBoard.drawFakeBlur.dock();
 
-  startUpSequence();
 });
 
 window.onappicondeleteshow = function () {
@@ -520,10 +521,15 @@ window.finishLoading = function finishLoading() {
   }, 0);
 };
 
-function startUpSequence() {
-  //Check if user have set iCupertino up
-  (window.checkSetup = function checkSetup(params) {
-    //skip setup in development mode
+
+
+setTimeout(() => {
+
+}, 1000);
+
+
+startUpSequence([
+  (next) => {
     if (webpackVariables.forceDevelopmentEnv) {
       (function forceSetupTest() {
         var db = springBoard.getDB();
@@ -531,23 +537,27 @@ function startUpSequence() {
         springBoard.setDB(db);
       })();
     }
+    next()
+  },
+  (next) => {
     if ("paintWorklet" in CSS) {
       CSS.paintWorklet.addModule(
         "/node_modules/css-houdini-squircle/lib/squircle.js"
       );
       document.body.classList.add("squircle");
+      next()
     } else {
       console.log("houdini not supported");
       springBoard.alert(
         "Warning!",
         "WebView you are using is old/unsupported!",
-        [{ title: "Ok", style: "default" }]
+        [{ title: "Ok", style: "default", action: next }]
       );
     }
-
-    //        console.log("setup", springBoard.getDB().userSetup)
+  },
+  (next) => {
     if (springBoard.getDB().userSetup == true) {
-      finishLoading();
+      next()
       return;
     } else if (springBoard.getDB()["userSetup"] == undefined) {
       var db = springBoard.getDB();
@@ -557,9 +567,69 @@ function startUpSequence() {
       springBoard.userSetupView.enter();
       return;
     }
-  })();
-}
+  },
+  (next) => {
+    redrawWallpaperCache()
+    springBoard.drawFakeBlur.dock();
+    next()
+  },
+  (next) => {
+    if (springBoard.getDB()["iconpack"]) {
 
-setTimeout(() => {
-  
-}, 1000);
+    } else {
+      var db = springBoard.getDB()
+      db["iconpack"] = {}
+      springBoard.setDB(db)
+    }
+    fetch(Bridge.getAppsURL())
+      .then(resp => resp.json())
+      .then(async (resp) => {
+        window["allappsarchive"] = resp.apps
+        const resicons = await iconizer(resp.apps.map(function (input) { return { packageName: input.packageName, icon: Bridge.getDefaultAppIconURL(input.packageName) } }))
+        console.log("rds",resicons)
+          if(Object.keys(resicons).length >= 0){
+          console.log("kaydeditorum")
+          const oldlist = new Set(Object.entries(springBoard.getDB().iconpack))
+          const newlist = new Set(Object.entries(resicons))
+          var db = springBoard.getDB()
+          db.iconpack = Object.fromEntries(oldlist.union(newlist))
+          springBoard.setDB(db)
+        }else{
+          console.log("yeni öğe yok")
+        }
+
+        next()
+      })
+  },
+  (next)=>{
+    loadApps()
+   requestAnimationFrame(next) 
+  }
+],
+  finishLoading
+)
+window.console.image = function (url, size = 100) {
+  if (typeof url == "string") {
+    const image = url
+    var style = [
+      'font-size: 1px;',
+      'padding: ' + this.height / 100 * size + 'px ' + this.width / 100 * size + 'px;',
+      'background: url(' + url + ') no-repeat;',
+      'background-size: contain;'
+    ].join(' ');
+    console.log('%c ', style);
+  } else {
+    const image = new Image();
+    image.src = url;
+    image.onload = function () {
+      var style = [
+        'font-size: 1px;',
+        'padding: ' + this.height / 100 * size + 'px ' + this.width / 100 * size + 'px;',
+        'background: url(' + url + ') no-repeat;',
+        'background-size: contain;'
+      ].join(' ');
+      console.log('%c ', style);
+    };
+  }
+};
+

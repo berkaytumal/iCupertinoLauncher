@@ -11,10 +11,16 @@ const cupertinoElements = {
             eventReloads.appIcon()
         }, 1);
         const apptag = Date.now() + "-" + Math.round(Math.random() * 1000)
+        var icone = ""
+        try {
+            icone = springBoard.getDB().iconpack[packageName]
+        } catch (error) {
+            
+        }
         return $.parseHTML(`
         <div class="C_ELEMENT APPICON" id="${apptag}" packageName="${packageName}">
             <div class="C_ELEMENT APPICONDELETE" tag="${apptag}" style="--tag:'${apptag}'" onclick="appIconClick(this)"></div>
-            <img class="ICON" src="${iconUrl}" style="background:white;" onerror="this.src='assets/drawable/undefined.png'"/>
+            <img class="ICON" src="${icone}" dada="${icone} style="background:white;" onerror="this.src='assets/drawable/undefined.png'"/>
             <p class="STRING">${string}</p>
         </div>`)
         //            <div class="ICON" style="--background:url(${iconUrl});"></div>

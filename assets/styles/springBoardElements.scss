@@ -73,7 +73,7 @@ body {
       height: 100%;
       scroll-snap-align: center;
 
-      &.animateIntro {
+      &.animateIntro.d {
         transition: 0s !important;
         overflow: visible;
         z-index: 999;
@@ -86,7 +86,6 @@ body {
           //animation: animateIntro calc(.5s + var(--centerHypot) * 0.003s) cubic-bezier(0.4, 1.125, 0.4, 1) forwards;
           animation: animateIntro calc(2s) cubic-bezier(0.4, 1.05, 0.4, 1)
             forwards;
-          animation-composition: accumulate;
           will-change: transform !important;
           * {
             transition: 0s !important;
