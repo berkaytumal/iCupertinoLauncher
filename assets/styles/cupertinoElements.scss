@@ -276,7 +276,6 @@ $material-presets: (
     body.editmode:not(.scrollingd) & {
       &::after {
       }
-      will-change: transform;
 
       --easing: ease-out;
       /*
@@ -549,6 +548,7 @@ $material-presets: (
         font-size: 18px;
         opacity: 0.8;
         font-weight: 500;
+        white-space: nowrap;
       }
       margin: 0px;
       position: relative;

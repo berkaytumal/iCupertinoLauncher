@@ -1,6 +1,8 @@
 import jquery from "jquery";
 var $ = jquery;
 var jQuery = jquery;
+import fitText from "./jquery-plugins/jquery.fittext.js"
+fitText(jquery)
 window.$ = window.jQuery = jquery
 import webpackVariables from "webpackVariables";
 
@@ -39,10 +41,14 @@ import BScroll from "better-scroll";
 import startUpSequence from "./libraries/startUpSequence.js";
 import easings from "../scripts/libraries/easings.js";
 import iconizer from "./libraries/iconizer.js"
+import { getDB, setDB, resetDB } from './libraries/indexedDBHelper.js';
 window["cupertinoElements"] = cupertinoElements;
 window["springBoard"] = springBoard;
 window["BScroll"] = BScroll;
 window["easings"] = easings;
+window.getDB = getDB
+window.setDB = setDB
+window.resetDB = resetDB
 function detectDeviceType() {
   const queryString = window.location.search;
   const urlParams = new URLSearchParams(queryString);
@@ -222,7 +228,7 @@ window.loadApps = function loadApps() {
     springBoard.relocateIconMovingSpots()
     homeScroller["cancel"] = function () {
       const scrollContainer = document.querySelector("#pages-wrapper");
-  
+
       // To simulate a pointer up event
       const touchEndEvent = new TouchEvent("touchend", {
         bubbles: true,
@@ -239,7 +245,7 @@ window.loadApps = function loadApps() {
       scrollContainer.dispatchEvent(touchEndEvent);
     };
     window["homeScroller"] = homeScroller;
-  
+
     const bs = window["homeScroller"];
     bs.scroller.translater.hooks.on(
       "beforeTranslate",
@@ -254,7 +260,7 @@ window.loadApps = function loadApps() {
           var roundedPxValue = Math.round(pxValue);
           transformStyle[0] = "translateX(" + roundedPxValue + "px)";
         }
-  
+
         //$("div.C_ELEMENT.APPICON > .ICON").trigger("pointerup")
       }
     );
@@ -273,7 +279,7 @@ window.loadApps = function loadApps() {
       //  drawAppUninstallIconBG()
     });
     $(window).on("pointerup", function () { });
-  
+
   });
 }
 $(window).on("contextmenu", function (event) {
@@ -464,9 +470,7 @@ window.finishLoading = function finishLoading() {
   setTimeout(() => {
     function continueLoad() {
       $("#loader").addClass("hide");
-      springBoard.changeZoom(1.05)
-      springBoard.animate.intro()
-
+      requestAnimationFrame(springBoard.animate.intro)
       setTimeout(() => {
         $("#loader").remove();
         $("#loaderstyle").remove();
@@ -520,14 +524,16 @@ window.finishLoading = function finishLoading() {
     }
   }, 0);
 };
+async function initializeIcons() {
+  const db = await getDB();
+  window.icons = { "dsf": "dsklfgşnsa" };
 
-
-
-setTimeout(() => {
-
-}, 1000);
-
-
+  if (db.iconpack) {
+    for (const [packageName, blob] of Object.entries(db.iconpack)) {
+      window.icons[packageName] = URL.createObjectURL(blob);
+    }
+  }
+}
 startUpSequence([
   (next) => {
     if (webpackVariables.forceDevelopmentEnv) {
@@ -574,36 +580,66 @@ startUpSequence([
     next()
   },
   (next) => {
-    if (springBoard.getDB()["iconpack"]) {
+    (async function () {
+      const db = await getDB();
 
-    } else {
-      var db = springBoard.getDB()
-      db["iconpack"] = {}
-      springBoard.setDB(db)
-    }
-    fetch(Bridge.getAppsURL())
-      .then(resp => resp.json())
-      .then(async (resp) => {
-        window["allappsarchive"] = resp.apps
-        const resicons = await iconizer(resp.apps.map(function (input) { return { packageName: input.packageName, icon: Bridge.getDefaultAppIconURL(input.packageName) } }))
-        console.log("rds",resicons)
-          if(Object.keys(resicons).length >= 0){
-          console.log("kaydeditorum")
-          const oldlist = new Set(Object.entries(springBoard.getDB().iconpack))
-          const newlist = new Set(Object.entries(resicons))
-          var db = springBoard.getDB()
-          db.iconpack = Object.fromEntries(oldlist.union(newlist))
-          springBoard.setDB(db)
-        }else{
-          console.log("yeni öğe yok")
-        }
+      if (db.iconpack) {
 
-        next()
-      })
+      } else {
+        db.iconpack = {};
+        await setDB(db);
+      }
+
+      fetch(Bridge.getAppsURL())
+        .then(resp => resp.json())
+        .then(async (resp) => {
+          window.allappsarchive = resp.apps;
+          const resicons = await iconizer(resp.apps.map(function (input) { return { packageName: input.packageName, icon: Bridge.getDefaultAppIconURL(input.packageName) } }));
+          console.log("rds", resicons);
+
+          if (Object.keys(resicons).length >= 0) {
+            console.log("kaydeditorum");
+
+            const oldlist = new Set(Object.entries(db.iconpack));
+            const newlist = new Set(Object.entries(resicons));
+
+            db.iconpack = Object.fromEntries(new Set([...oldlist, ...newlist]));
+            await setDB(db);
+          } else {
+            console.log("yeni öğe yok");
+          }
+
+          next();
+        });
+    })();
+
   },
-  (next)=>{
+  async (next) => {
+    // When we begin, assume no images are loaded.
+    var imagesLoaded = 0;
+    // Count the total number of images on the page when the page has loaded.
+    var totalImages = $("img").length;
+
+    // After an image is loaded, add to the count, and if that count equals the
+    // total number of images, fire the allImagesLoaded() function.
+    $("img").on("load", function (event) {
+      imagesLoaded++;
+      console.log("images load", imagesLoaded)
+      if (imagesLoaded == totalImages) {
+        allImagesLoaded();
+      }
+    });
+
+    function allImagesLoaded() {
+      console.log("ALL IMAGES LOADED");
+    }
+
+    await initializeIcons();
+    next()
+  },
+  async (next) => {
     loadApps()
-   requestAnimationFrame(next) 
+    requestAnimationFrame(next)
   }
 ],
   finishLoading

@@ -154,6 +154,8 @@ const springBoard = {
   changeZoom: function (scale) {
     scale = scale == 0 ? 1 : scale < 0.1 ? 0.1 : scale > 10 ? 10 : scale
     $("body").css("zoom", scale)
+    $("#debugmenu").css("zoom", 1 / scale)
+    $("div.C_ELEMENT.PAGEGRID").css("width",document.body.clientWidth)
     springBoard.relocateIcons()
   },
   closestAvailableSpot: function (x, y) {
@@ -686,9 +688,12 @@ const springBoard = {
         if (config.placement.pages[index].length - 1 >= indexe) {
           //  console.log(Bridge)
           $(element).append(new cupertinoElements.appIcon(Bridge.getDefaultAppIconURL(config.placement.pages[index][indexe]), springBoard.findLabelFromPackageName(config.placement.pages[index][indexe]), config.placement.pages[index][indexe]))
+
         }
       });
     })
+    $("div.C_ELEMENT.APPICON > p.STRING").fitText()
+
 
   },
   userSetupView: {

@@ -8,36 +8,67 @@
 *
 * Date: Thu May 05 14:23:00 2011 -0600
 */
+function fitText(jq) {
+  (function ($) {
 
-(function( $ ){
+    $.fn.fitText = function (kompressor, options) {
 
-  $.fn.fitText = function( kompressor, options ) {
-
-    // Setup options
-    var compressor = kompressor || 1,
+      // Setup options
+      var compressor = kompressor || 1,
         settings = $.extend({
-          'minFontSize' : Number.NEGATIVE_INFINITY,
-          'maxFontSize' : Number.POSITIVE_INFINITY
+          'minFontSize': 10,
+          'maxFontSize': 12,
+          'originalFontSize': 12
         }, options);
+      return this.each(function () {
 
-    return this.each(function(){
+        // Store the object
+        var $this = $(this);
+        var backups = {
+          "transition": String($this.css("transition")),
+          "max-width": String($this.css("max-width")),
+          "font-weight": 350,
+          "overflow":  String($this.css("overflow"))
+        }
+        $this.addClass("noanim")
 
-      // Store the object
-      var $this = $(this);
+        $this.css("transition", "0s")
+        $this.css("max-width", "80px")
+        $this.css("font-size", `${settings.originalFontSize}px`)
+        // Resizer() resizes items based on the object width divided by the compressor * 10
+        const fontsiz = Math.max(Math.min(
 
-      // Resizer() resizes items based on the object width divided by the compressor * 10
-      var resizer = function () {
-        $this.css('font-size', Math.max(Math.min($this.width() / (compressor*10), parseFloat(settings.maxFontSize)), parseFloat(settings.minFontSize)));
-      };
+          settings.originalFontSize / ($this.width() / $this.parent().width())
 
-      // Call once to set.
-      resizer();
+          , parseFloat(settings.maxFontSize))
+          , parseFloat(settings.minFontSize))
+        $this.css('font-size', fontsiz);
+        const scale = fontsiz / settings.originalFontSize
+        $this.css('font-weight', backups["font-weight"] / scale);
+        const before = $this.css("width").slice(0,-2)
+        if (before > 70) {
+          $this.css("transform",`translateX(-50%) scaleX(${70 / before})`)
+        }
 
-      // Call on resize. Opera debounces their resize by default.
-      $(window).on('resize.fittext orientationchange.fittext', resizer);
+        // Call on resize. Opera debounces their resize by default.
+        Object.entries(backups).forEach(element => {
+          $this.css(element[0], element[1])
+        });
+        $this.css('font-weight', backups["font-weight"] / scale);
 
-    });
+        $this.css("max-width", "80px")
 
-  };
 
-})( jQuery );
+        requestAnimationFrame(() => {
+          $this.removeClass("noanim")
+
+        })
+
+      });
+
+    };
+
+  })(jq);
+
+}
+export default fitText;

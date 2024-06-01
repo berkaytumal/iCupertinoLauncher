@@ -11,6 +11,19 @@
 </head>
 
 <body class="nestedDock">
+    <div id="debugmenu" class="hidden" onclick="$('#debugmenu').removeClass('hidden')">
+        <h2>Debug Menu</h2>
+        <button type="button" class="btn btn-primary" onclick="window.springBoard.animate.intro()">Animate
+            Intro</button>
+        <button type="button" class="btn btn-primary" onclick="springBoard.userSetupView.enter()">Enter OOBE</button>
+        <button type="button" class="btn btn-primary" onclick="event.stopPropagation();event.preventDefault();$('#debugmenu').addClass('hidden')">Hide</button>
+        <button type="button" class="btn btn-primary" onclick="window.location.reload()">Respring</button>
+        <div>
+            <label for="customRange2" class="form-label">Display Zoom: 1</label>
+            <input type="range" class="form-range" min="0.5" max="3" step=".1" value="1" id="customRange2" oninput="console.log('dfsgş');springBoard.changeZoom(this.value);$(this).prev('label').text('Display Zoom: ' + this.value)">
+        </div>
+
+    </div>
     <style id="loaderstyle">
         body {
             background-color: black;
@@ -61,7 +74,7 @@
         <div id="dock" class="M_ULTRATHINDARK MATERIAL"></div>
         <div id="dockBg" class="M_ULTRATHINLIGHT MATERIAL"></div>
     </div>
-    <img id="system_wallpaper" src="assets/drawable/wallpaper/iOS-17-wallpaper-light.webp">
+    <img id="system_wallpaper" src="assets/drawable/graw.png">
 
     <script src="/assets/script.js"></script>
 
@@ -90,6 +103,7 @@
         }
     </style>-->
     <script>
+        /*
         function update() {
             if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
                 $("#system_wallpaper").attr("src", "assets/drawable/wallpaper/iOS-17-wallpaper-dark.webp")
@@ -103,8 +117,9 @@
         window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
             update()
         });
-        update()
+        update()*/
     </script>
+    <script src="node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
 </body>
 
 </html>
