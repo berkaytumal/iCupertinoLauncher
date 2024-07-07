@@ -155,7 +155,7 @@ const springBoard = {
     scale = scale == 0 ? 1 : scale < 0.1 ? 0.1 : scale > 10 ? 10 : scale
     $("body").css("zoom", scale)
     $("#debugmenu").css("zoom", 1 / scale)
-    $("div.C_ELEMENT.PAGEGRID").css("width",document.body.clientWidth)
+    $("div.C_ELEMENT.PAGEGRID").css("width", document.body.clientWidth)
     springBoard.relocateIcons()
   },
   closestAvailableSpot: function (x, y) {
@@ -274,6 +274,12 @@ const springBoard = {
       rect[1] = document.body.clientHeight * 0.06 + 15
       rect[2] = rect[0]
       rect[3] = document.body.clientHeight * 0.06 + 15 + 120
+
+
+      rect[3] -= 20
+      rect[1] = document.body.clientHeight * 0.03 + 15
+      rect[3] += windowinsets.bottom
+
     } else {
       if (landscape) {
         rect[0] = 32
@@ -509,8 +515,8 @@ const springBoard = {
         rect[1] = 12
         rect[2] = 32
         rect[3] = 120
-      }
-      else {
+
+      } else {
 
         if (document.body.clientHeight < 700) {
           if (document.body.clientHeight < 670) {
@@ -546,6 +552,7 @@ const springBoard = {
     rect[1] += window.windowinsets.top
     if (rect[0] > (nestedDock ? 30 : 31) && !isTablet()) rect[2] = rect[0] = nestedDock ? 30 : 31
     // rect[3] = 0
+
     const convrect = [
       rect[0],
       rect[1],
@@ -906,6 +913,8 @@ const springBoard = {
 
   },
   enterEditMode: function () {
+
+    Bridge.requestSetStatusBarAppearance("hide")
     console.log("enterEditMode")
     springBoard.drawFakeBlur.appUninstallIcon()
     $("body").addClass("editmode")
@@ -922,6 +931,7 @@ const springBoard = {
     }, 300);
   },
   exitEditMode: function () {
+    Bridge.requestSetStatusBarAppearance("light-fg")
     console.log("exitEditMode")
     $("body").removeClass("editmode").addClass("exiteditmode")
     setTimeout(() => {
@@ -935,17 +945,18 @@ const springBoard = {
     window["inEditMode"] = false
   },
   drawFakeBlur: {
-    getTexture: function (rectangle, filter, scale) {
-      var canvas = window.fakeBlurCanvas
+    getTexture: function (rectangle, filter, scale, callback) {
+      var canvas = window.fakeBlurCanvas;
 
       // Create a new canvas with the size of the rectangle
       const newCanvas = document.createElement('canvas');
       newCanvas.width = rectangle.width * scale;
       newCanvas.height = rectangle.height * scale;
-      newCanvas.width = newCanvas.width <= 1 ? 2 : newCanvas.width
-      newCanvas.height = newCanvas.height <= 1 ? 2 : newCanvas.height
+      newCanvas.width = newCanvas.width <= 1 ? 2 : newCanvas.width;
+      newCanvas.height = newCanvas.height <= 1 ? 2 : newCanvas.height;
       const newCtx = newCanvas.getContext('2d');
-      newCtx.filter = filter
+      newCtx.filter = filter;
+
       // Draw the rectangle from the original canvas onto the new canvas
       newCtx.drawImage(
         canvas,
@@ -958,9 +969,7 @@ const springBoard = {
         rectangle.width * scale, // destination width
         rectangle.height * scale // destination height
       );
-      newCtx.filter = "none"
-
-
+      newCtx.filter = "none";
 
       var imageData = newCtx.getImageData(0, 0, newCanvas.width, newCanvas.height);
 
@@ -970,35 +979,39 @@ const springBoard = {
       }
 
       // Put the modified image data onto the second canvas
-
       newCtx.putImageData(imageData, 0, 0);
-      /*  for (let i = 0; i < iteration; i++) {
-            newCtx.drawImage(
-                newCanvas,
-                0, 0
-            );
-   
-        }*/
 
-      return newCanvas.toDataURL()
+      newCanvas.toBlob((blob) => {
+        if (blob) {
+          const blobURL = URL.createObjectURL(blob);
+          if (callback && typeof callback === 'function') {
+            callback(null, blobURL);
+          }
+        } else {
+          if (callback && typeof callback === 'function') {
+            callback(new Error('Failed to create blob'), null);
+          }
+        }
+      });
     },
-    applyToElement: function (element, filter, scale = 1, callback = () => { }) {
-
-      $(element).css("background-image", `url(${springBoard.drawFakeBlur.getTexture(element.getBoundingClientRect(), filter, scale)})`).css("background-size", "100% 100%")
-
-      callback()
+    applyToElement: function (element, filter, scale = 1, callback) {
+      springBoard.drawFakeBlur.getTexture(element.getBoundingClientRect(), filter, scale, (e, blobURL) => {
+        $(element).css("background-image", `url(${blobURL})`).css("background-size", "100% 100%")
+      })
     },
-    dock: function () {
+    dock: function (callback) {
       springBoard.drawFakeBlur.applyToElement(
         $($("body").hasClass("nestedDock") ? "#dockBg" : "#dock")[0],
-        window.matchMedia('(prefers-color-scheme: dark)').matches ? "blur(50px) saturate(1.1) brightness(0.83) contrast(1.1) " : "blur(50px) saturate(1.1) brightness(1.2)"
+        window.matchMedia('(prefers-color-scheme: dark)').matches ?
+          "blur(50px) contrast(0.9) saturate(1.1) brightness(0.83) contrast(1.1) " :
+          `blur(50px) contrast(0.75) brightness(${1 / 0.75})`
+        , callback
       )
 
 
     },
     appUninstallIcon: function () {
-      return
-      if (!window["inEditMode"]) return
+      // if (!window["inEditMode"]) return
       requestAnimationFrame(function () {
         $(`#pages > div:nth-child(${homeScroller.getCurrentPage().pageX + 1}) div.C_ELEMENT.APPICONDELETE`).each((index, element) => {
 
@@ -1066,15 +1079,15 @@ const springBoard = {
   isDarkSchemePreferred: false,
   animate: {
     intro: function () {
-      springBoard.relocateIcons()
       var page = $(`#pages > div:nth-child(${homeScroller.getCurrentPage().pageX + 1})`).removeClass("animateIntro").css("animation", "none")
-
       page.addClass("animateIntro").css("animation", "")
       clearTimeout(window["introTimeout"])
       window["introTimeout"] = setTimeout(() => {
         page.removeClass("animateIntro")
         delete window["introTimeout"]
-      }, 2000);
+      }, 1000);
+
+
     }
   }
 }
@@ -1089,6 +1102,25 @@ $.ajax({
   success: function () {
     //do something cheerful :)
     $("#system_wallpaper").attr("src", springBoard.getDB().wallpaper)
+  },
+  appsearch: {
+    swipe: {
+      start: (position) => {
+
+      },
+      move: (position) => {
+
+      },
+      stop: (position) => {
+
+      }
+    },
+    enter: function () {
+
+    },
+    leave: function () {
+
+    }
   }
 });
 function isTablet() {

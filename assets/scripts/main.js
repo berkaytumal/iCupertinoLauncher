@@ -13,7 +13,6 @@ window.windowinsets = document.body.windowinsets = {
   right: 0,
   bottom: 0,
 };
-detectDeviceType();
 const fakeBlurCanvas = document.createElement("canvas");
 window.fakeBlurCanvas = fakeBlurCanvas;
 // set that will hold all registered event listeners
@@ -22,16 +21,30 @@ const bridgeEvents = new Set();
 window.onBridgeEvent = (...event) => {
   bridgeEvents.forEach((l) => l(...event));
 };
-
+var initialinset = [0, 0]
+window.initialinset = initialinset
+var initialinsetmutable = true
 // adding a listener later in the code
 bridgeEvents.add((name, args) => {
   //    console.log("WOWOWOWOWO", name, args)   // args will be strongly typed
   if (name != "systemBarsWindowInsetsChanged") return;
   windowinsets = JSON.parse(Bridge.getSystemBarsWindowInsets());
   insetF();
+  initialinset = [Math.max(initialinset[0], windowinsets.top), Math.max(initialinset[1], windowinsets.bottom)]
   Object.keys(windowinsets).forEach((element) => {
     $("body").css("--window-inset-" + element, windowinsets[element] + "px");
   });
+  if (initialinsetmutable) {
+    setTimeout(() => {
+      initialinsetmutable = false
+    }, 1000);
+    $("body").css("--init-inset-0", initialinset[0] + "px");
+    $("body").css("--init-inset-1", initialinset[1] + "px");
+  }
+  const thresholdstatusbarheight = 20
+  $("body").css("--dock-inset", (windowinsets.bottom > thresholdstatusbarheight - 10) ? windowinsets.bottom - thresholdstatusbarheight - 10 : 0 + "px");
+
+
 });
 
 import cupertinoElements from "./cupertinoElements.js";
@@ -42,6 +55,8 @@ import startUpSequence from "./libraries/startUpSequence.js";
 import easings from "../scripts/libraries/easings.js";
 import iconizer from "./libraries/iconizer.js"
 import { getDB, setDB, resetDB } from './libraries/indexedDBHelper.js';
+import { Spring, PageSlider as Slider } from './libraries/iCupertinoAnimationFramework.js';
+
 window["cupertinoElements"] = cupertinoElements;
 window["springBoard"] = springBoard;
 window["BScroll"] = BScroll;
@@ -49,6 +64,7 @@ window["easings"] = easings;
 window.getDB = getDB
 window.setDB = setDB
 window.resetDB = resetDB
+window.Spring = Spring, window.Slider = Slider
 function detectDeviceType() {
   const queryString = window.location.search;
   const urlParams = new URLSearchParams(queryString);
@@ -130,8 +146,7 @@ $("#dock").append(
 );
 
 var TABLET_VIEW = document.body["TABLET_VIEW"];
-springBoard.relocateIcons();
-$(window).on("resize", springBoard.relocateIcons);
+
 $(window).on("resize", function () {
   return;
   var appGridInner = function (columns, rows) {
@@ -196,89 +211,67 @@ $(window).on("resize", function () {
     });
 });
 
-springBoard.getDB();
-springBoard.relocateIcons();
-
 var center = [document.body.clientWidth / 2, document.body.clientHeight / 2];
-
+var spotlightswipe = false
 window.loadApps = function loadApps() {
   springBoard.reloadApps(function () {
 
-    const homeScroller = new BScroll($("#pages-wrapper")[0], {
-      scrollX: true,
-      scrollY: false,
-      momentum: false,
-      bounce: true,
-      disableMouse: false,
-      disableTouch: false,
-      slide: {
-        loop: false,
-        autoplay: false,
-        threshold: 0,
-      },
-      HWCompositing: false,
-      click: true,
-      tap: "tap",
-      phoneThreshold: 0,
-      tabletThreshold: 0,
-      threshold: 0,
-    });
+    const homeScroller = new Slider($("#pages-wrapper")[0]);
+    homeScroller.on("pagechanged", function (e) {
+      $("#page-indicator").addClass("show-pages")
+      clearTimeout(window["pagechangedtimeout"])
+      window["pagechangedtimeout"] = setTimeout(() => {
+        $("#page-indicator").removeClass("show-pages")
+      }, 1000);
+    })
+
+    homeScroller.on("swipestarted", function (e) {
+      //console.log("swipe started", e)
+      $(homeScroller.target).addClass("scrolling")
+      if (e.direction == "vertical") {
+        spotlightswipe = true
+        console.log("vertical")
+        homeScroller.cancel()
+      }
+    })
+    homeScroller.on("swipefinished", function (e) {
+     // console.log("swipe finished", e)
+      $(homeScroller.target).removeClass("scrolling")
+    })
+
+    var mouseposition = { x: 0, y: 0 }
+    $(window).on("pointermove", function (e) {
+      mouseposition = { x: e.pageX, y: e.pageY }
+      return
+
+    })
+    $(window).on("pointerup", function (e) {
+      spotlightswipe = false
+    })
+    requestAnimationFrame(
+      function animate() {
+        if (!spotlightswipe) return
+        var transition = mouseposition.y / window.innerHeight * 3 - 2 / 3
+        transition = transition < 0 ? 0 : transition > 1 ? 1 : transition
+        $("#spotlight").css("--transition", transition).css("--blurtransition", Math.round(transition * 5) / 5)
+        $("#pages-wrapper").css("--transition", transition)
+        setTimeout(() => {
+          if (spotlightswipe) requestAnimationFrame(animate)
+        }, 10);
+      }
+    )
     window["homeScroller"] = homeScroller
     springBoard.relocateIcons();
     springBoard.relocateIconMovingSpots()
-    homeScroller["cancel"] = function () {
-      const scrollContainer = document.querySelector("#pages-wrapper");
-
-      // To simulate a pointer up event
-      const touchEndEvent = new TouchEvent("touchend", {
-        bubbles: true,
-        cancelable: true,
-        view: window,
-      });
-      // To simulate a pointer up event
-      const mouseUpEvent = new MouseEvent("mouseup", {
-        bubbles: true,
-        cancelable: true,
-        view: window,
-      });
-      scrollContainer.dispatchEvent(mouseUpEvent);
-      scrollContainer.dispatchEvent(touchEndEvent);
-    };
+ 
     window["homeScroller"] = homeScroller;
 
     const bs = window["homeScroller"];
-    bs.scroller.translater.hooks.on(
-      "beforeTranslate",
-      (transformStyle, point) => {
-        clearTimeout(window["entereditmodetimeout"]);
-        return;
-        var transformString = transformStyle[0];
-        var pxRegex = /-?\d+\.?\d*/;
-        var matches = transformString.match(pxRegex);
-        if (matches) {
-          var pxValue = parseFloat(matches[0]); // Convert string to float
-          var roundedPxValue = Math.round(pxValue);
-          transformStyle[0] = "translateX(" + roundedPxValue + "px)";
-        }
-
-        //$("div.C_ELEMENT.APPICON > .ICON").trigger("pointerup")
-      }
-    );
-    bs.scroller.actions.hooks.on("scrollStart", () => {
-      eventReloads.appIcon();
-      $("#pages").addClass("scrollHelper");
-      $("div.C_ELEMENT.APPICON > img.ICON.active").each((index, element) => {
-        element.cancelPress();
-        element.classList.add("cancelled");
-      });
-      $("body").addClass("scrolling");
-    });
     bs.on("scrollEnd", () => {
       $("body").removeClass("scrolling");
       springBoard.drawFakeBlur.appUninstallIcon();
       //  drawAppUninstallIconBG()
     });
-    $(window).on("pointerup", function () { });
 
   });
 }
@@ -464,19 +457,24 @@ window.appIconClick = function (el) {
 function insetF() {
   // windowinsets.bottom = windowinsets.bottom < 50 ? 0 : windowinsets.bottom
 }
+$("#pages-wrapper").css("opacity", "0")
 
 //hide loader and load springboard
 window.finishLoading = function finishLoading() {
   setTimeout(() => {
     function continueLoad() {
       $("#loader").addClass("hide");
-      requestAnimationFrame(springBoard.animate.intro)
+
+
       setTimeout(() => {
         $("#loader").remove();
         $("#loaderstyle").remove();
 
 
-
+        requestAnimationFrame(() => {
+          springBoard.animate.intro()
+          $("#pages-wrapper").css("opacity", "")
+        })
       }, 300);
     }
     if (
@@ -534,7 +532,43 @@ async function initializeIcons() {
     }
   }
 }
+
+
+window.console.image = function (url, size = 100) {
+  if (typeof url == "string") {
+    const image = url
+    var style = [
+      'font-size: 1px;',
+      'padding: ' + this.height / 100 * size + 'px ' + this.width / 100 * size + 'px;',
+      'background: url(' + url + ') no-repeat;',
+      'background-size: contain;'
+    ].join(' ');
+    console.log('%c ', style);
+  } else {
+    const image = new Image();
+    image.src = url;
+    image.onload = function () {
+      var style = [
+        'font-size: 1px;',
+        'padding: ' + this.height / 100 * size + 'px ' + this.width / 100 * size + 'px;',
+        'background: url(' + url + ') no-repeat;',
+        'background-size: contain;'
+      ].join(' ');
+      console.log('%c ', style);
+    };
+  }
+};
+
+
+
 startUpSequence([
+  (next) => {
+
+    detectDeviceType();
+
+    $(window).on("resize", springBoard.relocateIcons);
+    next()
+  },
   (next) => {
     if (webpackVariables.forceDevelopmentEnv) {
       (function forceSetupTest() {
@@ -642,30 +676,13 @@ startUpSequence([
     requestAnimationFrame(next)
   }
 ],
-  finishLoading
-)
-window.console.image = function (url, size = 100) {
-  if (typeof url == "string") {
-    const image = url
-    var style = [
-      'font-size: 1px;',
-      'padding: ' + this.height / 100 * size + 'px ' + this.width / 100 * size + 'px;',
-      'background: url(' + url + ') no-repeat;',
-      'background-size: contain;'
-    ].join(' ');
-    console.log('%c ', style);
-  } else {
-    const image = new Image();
-    image.src = url;
-    image.onload = function () {
-      var style = [
-        'font-size: 1px;',
-        'padding: ' + this.height / 100 * size + 'px ' + this.width / 100 * size + 'px;',
-        'background: url(' + url + ') no-repeat;',
-        'background-size: contain;'
-      ].join(' ');
-      console.log('%c ', style);
-    };
+  function () {
+    setTimeout(() => {
+      finishLoading()
+    }, 100);
   }
-};
+)
+window["scrollmethod"] = 0
 
+
+$("#bridgeprefix").text("Bridge Prefix: " + window.Bridge._prefix)

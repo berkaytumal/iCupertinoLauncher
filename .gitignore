@@ -4,3 +4,5 @@
 test.html
 assets/style.css
 assets/script.js
+.DS_Store
+assets/.DS_Store

@@ -16,7 +16,7 @@ function fitText(jq) {
       // Setup options
       var compressor = kompressor || 1,
         settings = $.extend({
-          'minFontSize': 10,
+          'minFontSize': 12,
           'maxFontSize': 12,
           'originalFontSize': 12
         }, options);
@@ -27,7 +27,6 @@ function fitText(jq) {
         var backups = {
           "transition": String($this.css("transition")),
           "max-width": String($this.css("max-width")),
-          "font-weight": 350,
           "overflow":  String($this.css("overflow"))
         }
         $this.addClass("noanim")
@@ -44,7 +43,6 @@ function fitText(jq) {
           , parseFloat(settings.minFontSize))
         $this.css('font-size', fontsiz);
         const scale = fontsiz / settings.originalFontSize
-        $this.css('font-weight', backups["font-weight"] / scale);
         const before = $this.css("width").slice(0,-2)
         if (before > 70) {
           $this.css("transform",`translateX(-50%) scaleX(${70 / before})`)
@@ -54,7 +52,6 @@ function fitText(jq) {
         Object.entries(backups).forEach(element => {
           $this.css(element[0], element[1])
         });
-        $this.css('font-weight', backups["font-weight"] / scale);
 
         $this.css("max-width", "80px")
 

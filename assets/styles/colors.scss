@@ -1,3 +1,12 @@
+@function autoColor($media-preference) {
+  @if $media-preference == dark {
+    @return '-dark';
+  } @else {
+    @return '';
+  }
+}
+
+
 :root {
   /* Color styles */
   --colors-red: rgba(255, 59, 48, 1);
@@ -106,4 +115,106 @@
   --template-component-fill: rgba(128, 128, 128, 0.30000001192092896);
   --template-subcomponent-fill: rgba(0, 122, 255, 0.30000001192092896);
   --template-submcomponent-stroke: rgba(0, 122, 255, 1);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* Update dark mode color variables */
+    --colors-red-auto: var(--colors-red-dark);
+    --colors-orange-auto: var(--colors-orange-dark);
+    --colors-yellow-auto: var(--colors-yellow-dark);
+    --colors-green-auto: var(--colors-green-dark);
+    --colors-mint-auto: var(--colors-mint-dark);
+    --colors-teal-auto: var(--colors-teal-dark);
+    --colors-cyan-auto: var(--colors-cyan-dark);
+    --colors-blue-auto: var(--colors-blue-dark);
+    --colors-indigo-auto: var(--colors-indigo-dark);
+    --colors-purple-auto: var(--colors-purple-dark);
+    --colors-pink-auto: var(--colors-pink-dark);
+    --colors-brown-auto: var(--colors-brown-dark);
+    --labels-primary-auto: var(--labels-primary-dark);
+    --labels-secondary-auto: var(--labels-secondary-dark);
+    --labels-tertiary-auto: var(--labels-tertiary-dark);
+    --labels-quaternary-auto: var(--labels-quaternary-dark);
+    --labels-vibrant-primary-auto: var(--labels-vibrant-primary-dark);
+    --labels-vibrant-secondary-auto: var(--labels-vibrant-secondary-dark);
+    --labels-vibrant-tertiary-auto: var(--labels-vibrant-tertiary-dark);
+    --labels-vibrant-quaternary-auto: var(--labels-vibrant-quaternary-dark);
+    --grays-gray-auto: var(--grays-gray-dark);
+    --grays-gray-2-auto: var(--grays-gray-2-dark);
+    --grays-gray-3-auto: var(--grays-gray-3-dark);
+    --grays-gray-4-auto: var(--grays-gray-4-dark);
+    --grays-gray-5-auto: var(--grays-gray-5-dark);
+    --grays-gray-6-auto: var(--grays-gray-6-dark);
+    --grays-black-auto: var(--grays-black-dark);
+    --grays-white-auto: var(--grays-white-dark);
+    --fills-primary-auto: var(--fills-primary-dark);
+    --fills-secondary-auto: var(--fills-secondary-dark);
+    --fills-tertiary-auto: var(--fills-tertiary-dark);
+    --fills-quaternary-auto: var(--fills-quaternary-dark);
+    --fills-vibrant-primary-auto: var(--fills-vibrant-primary-dark);
+    --fills-vibrant-secondary-auto: var(--fills-vibrant-secondary-dark);
+    --fills-vibrant-tertiary-auto: var(--fills-vibrant-tertiary-dark);
+    --separators-opaque-auto: var(--separators-opaque-dark);
+    --separators-non-opaque-auto: var(--separators-non-opaque-dark);
+    --materials-thick-auto: var(--materials-thick-dark);
+    --materials-regular-auto: var(--materials-regular-dark);
+    --materials-thin-auto: var(--materials-thin-dark);
+    --materials-ultrathin-auto: var(--materials-ultrathin-dark);
+    --materials-chrome-auto: var(--materials-chrome-dark);
+    --template-sheet-fill-auto: var(--template-sheet-fill-dark);
+    --template-component-fill-auto: var(--template-component-fill-dark);
+    --template-subcomponent-fill-auto: var(--template-subcomponent-fill-dark);
+    --template-submcomponent-stroke-auto: var(--template-submcomponent-stroke-dark);
+  }
+}
+@media (prefers-color-scheme: light) {
+  :root {
+    --colors-red-auto: var(--colors-red);
+    --colors-orange-auto: var(--colors-orange);
+    --colors-yellow-auto: var(--colors-yellow);
+    --colors-green-auto: var(--colors-green);
+    --colors-mint-auto: var(--colors-mint);
+    --colors-teal-auto: var(--colors-teal);
+    --colors-cyan-auto: var(--colors-cyan);
+    --colors-blue-auto: var(--colors-blue);
+    --colors-indigo-auto: var(--colors-indigo);
+    --colors-purple-auto: var(--colors-purple);
+    --colors-pink-auto: var(--colors-pink);
+    --colors-brown-auto: var(--colors-brown);
+    --labels-primary-auto: var(--labels-primary);
+    --labels-secondary-auto: var(--labels-secondary);
+    --labels-tertiary-auto: var(--labels-tertiary);
+    --labels-quaternary-auto: var(--labels-quaternary);
+    --labels-vibrant-primary-auto: var(--labels-vibrant-primary);
+    --labels-vibrant-secondary-auto: var(--labels-vibrant-secondary);
+    --labels-vibrant-tertiary-auto: var(--labels-vibrant-tertiary);
+    --labels-vibrant-quaternary-auto: var(--labels-vibrant-quaternary);
+    --grays-gray-auto: var(--grays-gray);
+    --grays-gray-2-auto: var(--grays-gray-2);
+    --grays-gray-3-auto: var(--grays-gray-3);
+    --grays-gray-4-auto: var(--grays-gray-4);
+    --grays-gray-5-auto: var(--grays-gray-5);
+    --grays-gray-6-auto: var(--grays-gray-6);
+    --grays-black-auto: var(--grays-black);
+    --grays-white-auto: var(--grays-white);
+    --fills-primary-auto: var(--fills-primary);
+    --fills-secondary-auto: var(--fills-secondary);
+    --fills-tertiary-auto: var(--fills-tertiary);
+    --fills-quaternary-auto: var(--fills-quaternary);
+    --fills-vibrant-primary-auto: var(--fills-vibrant-primary);
+    --fills-vibrant-secondary-auto: var(--fills-vibrant-secondary);
+    --fills-vibrant-tertiary-auto: var(--fills-vibrant-tertiary);
+    --separators-opaque-auto: var(--separators-opaque);
+    --separators-non-opaque-auto: var(--separators-non-opaque);
+    --materials-thick-auto: var(--materials-thick);
+    --materials-regular-auto: var(--materials-regular);
+    --materials-thin-auto: var(--materials-thin);
+    --materials-ultrathin-auto: var(--materials-ultrathin);
+    --materials-chrome-auto: var(--materials-chrome);
+    --template-sheet-fill-auto: var(--template-sheet-fill);
+    --template-component-fill-auto: var(--template-component-fill);
+    --template-subcomponent-fill-auto: var(--template-subcomponent-fill);
+    --template-submcomponent-stroke-auto: var(--template-submcomponent-stroke);
+  }
 }

@@ -15,7 +15,7 @@ const cupertinoElements = {
         try {
             icone = window.icons[packageName]
         } catch (error) {
-            
+
         }
         return $.parseHTML(`
         <div class="C_ELEMENT APPICON" id="${apptag}" packageName="${packageName}">
@@ -119,6 +119,13 @@ const cupertinoElements = {
                 }, 0);
             })
         })
+    },
+    appSearchPopup: function () {
+        const appsearchpopup = {
+            phone: ``,
+            tablet: ``
+        }
+        return $.parseHTML(document.body.TABLET_VIEW == true ? tablet : phone)
     }
 }
 export default cupertinoElements;

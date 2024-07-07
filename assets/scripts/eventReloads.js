@@ -24,15 +24,12 @@ function windowGlobalPointerUp() {
             element["isContextOn"] = false
         })
     }, 10);
-    console.log("ajfhgasdşkfjlghadsjkf")
     $("body > div.C_ELEMENT.APPICON").each(function (index, element) {
 
         //console.log(element.original.moveMode)
         element.original.cancelPress()
         element.original.moveMode.leave()
-        console.log("hey",
-            element.original.lastPosition.left, element.original.lastPointerPosition[0]
-        )
+
         $(element).css({
             left: $(element.original).offset().left + 0,
             top: $(element.original).offset().top + 0,
@@ -133,7 +130,6 @@ function onContextPointerMove(e) {
                 }
 
             }
-            console.log()
             var icon = element.parentElement
             $(icon).css({
                 left: e.pageX + element.parentElement.original.lastPosition.left - element.parentElement.original.lastPointerPosition[0],

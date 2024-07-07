@@ -1,8 +1,65 @@
 var offscreenCanvas
-var [width, height]= [0,0]
+var [width, height] = [0, 0]
+function getMostFrequentColor(ctx) {
+  const imageData = ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height).data;
+  const colorCount = {};
+  let maxCount = 0;
+  let mostFrequentColor = '';
+
+  for (let i = 0; i < imageData.length; i += 4) {
+    const r = imageData[i];
+    const g = imageData[i + 1];
+    const b = imageData[i + 2];
+    const a = imageData[i + 3];
+
+    // Ignore non-opaque pixels
+    if (a === 255) {
+      const rgb = `rgb(${r},${g},${b})`;
+
+      colorCount[rgb] = (colorCount[rgb] || 0) + 1;
+
+      if (colorCount[rgb] > maxCount) {
+        maxCount = colorCount[rgb];
+        mostFrequentColor = rgb;
+      }
+    }
+  }
+
+  return mostFrequentColor;
+}
+function stretchIcon(ctx, image, max, step) {
+  const canvasWidth = ctx.canvas.width;
+  const canvasHeight = ctx.canvas.height;
+  
+  for (let scale = max; scale >= 1; scale -= step) {
+      const scaledWidth = canvasWidth * scale;
+      const scaledHeight = canvasHeight * scale;
+      
+      const offsetX = (canvasWidth - scaledWidth) / 2;
+      const offsetY = (canvasHeight - scaledHeight) / 2;
+      
+      ctx.drawImage(image, offsetX, offsetY, scaledWidth, scaledHeight);
+  }
+}
+
+
+
 function resizeImage(imageBitmap) {
   const ctx = offscreenCanvas.getContext('2d');
+  ctx.clearRect(0, 0, width, height)
+  /*
+
   ctx.drawImage(imageBitmap, 0, 0, width, height);
+  var colore = getMostFrequentColor(ctx)
+  console.log(colore)
+  ctx.fillStyle = colore
+  ctx.fillRect(0, 0, width, height)
+  //ctx.drawImage(ctx.canvas, 0, 0, 1, 1, 0, 0, width, height);
+  //ctx.drawImage(imageBitmap, 0, 0, width, height);
+
+
+  */
+  stretchIcon(ctx, imageBitmap, 1.75, .01);
   return offscreenCanvas.convertToBlob();
 }
 function resizeImageWithWebGL(imageBitmap) {

@@ -38,21 +38,37 @@ body {
   }
 }
 #pages-wrapper {
-  transition: transform .5s cubic-bezier(0.075, 0.82, 0.165, 1);
+  transition: transform 0.5s cubic-bezier(0.075, 0.82, 0.165, 1);
   body.editmode & {
-    transform: translateY(30px);
+    transform: translateY(calc(20px - min(var(--init-inset-0), 20px)));
+  }
+
+  &.scrolling {
+    #pages {
+      * {
+        transition: all 0s !important;
+      }
+      div.PAGEGRID {
+        div.APPICON {
+          filter: none !important;
+          p {
+            text-shadow: none !important;
+          }
+        }
+      }
+    }
   }
   display: block;
   height: calc(100% - 100px);
   height: 100%;
   min-height: 575px;
   overflow: hidden;
+  transition: transform 0s;
 }
 #pages {
-
-  will-change: transform !important;
+  //will-change: transform !important;
   &.scrollHelper {
-    will-change: transform;
+    //will-change: transform;
   }
   position: relative;
   left: 0px;
@@ -73,31 +89,34 @@ body {
       transition: 0s !important;
       overflow: visible;
       z-index: 999;
-      will-change: transform;
-
+      perspective: 500px;
       & .C_ELEMENT.APPICON {
         transition: 0s !important;
+        //will-change: transform;
 
         filter: none !important;
-        animation: animateIntro calc(.4s + var(--centerHypot) * 0.001s) cubic-bezier(.49,1.48,.4,1) forwards;
+        animation: animateIntro 0.6s
+          calc(pow(var(--centerHypot), 1.1) * 0.0003s)
+          cubic-bezier(0.44, 1.3, 0.4, 1) forwards;
+        opacity: 0;
+        content-visibility: visible;
         //animation: animateIntro calc(2s) cubic-bezier(0.4, 1.05, 0.4, 1)  forwards;
-        will-change: transform !important;
+        //will-change: transform !important;
         * {
           transition: 0s !important;
 
-          will-change: auto !important;
+          //will-change: auto !important;
           filter: none !important;
           text-shadow: none !important;
           box-shadow: none !important;
         }
         div.C_ELEMENT.APPICON {
-          will-change: transform;
+          //will-change: transform;
         }
         body.nestedDock & {
-          animation-timing-function: cubic-bezier(0.3, 1, 0.4, 1) !important;
+          // animation-timing-function: cubic-bezier(0.3, 1, 0.4, 1) !important;
         }
-        transform-origin: calc(var(--centerX) * -1px + var(--icon-size) * 0.5)
-          calc(var(--centerY) * -1px + var(--icon-size) * 0.5);
+
         /*  @keyframes animateIntro {
             from {
               transform: perspective(200px)
@@ -108,17 +127,25 @@ body {
             }
           }*/
 
-          @keyframes animateIntro {
-            from {
-              transform: perspective(200px)
-                translateZ(-50px);
+        @keyframes animateIntro {
+          0% {
+            transform: translateZ(300px);
             opacity: 0;
-              }
-            to {
-              transform: perspective(200px) translateZ(0px);
-              opacity: 1;
-            }
           }
+          100% {
+            transform: translateZ(0px);
+            opacity: 1;
+          }
+        }
+
+        /*@keyframes animateIntro {
+          0% {
+            opacity: 0;
+          }
+          100% {
+            opacity: 1;
+          }
+        }*/
       }
     }
   }
@@ -134,7 +161,6 @@ body {
     height: 100px;
     z-index: 5;
   }
-
 
   &.nestedDock {
     & #dock {
@@ -253,6 +279,120 @@ display: none;
     }
     to {
       opacity: 0;
+    }
+  }
+}
+
+#top-buttons {
+  z-index: 10;
+  position: fixed;
+  left: 0px;
+  top: 0px;
+  width: 100%;
+  height: 60px;
+  padding: 15px 30px;
+  button.right {
+    float: right;
+    font-size: 12px;
+  }
+  button {
+    pointer-events: none;
+    opacity: 0;
+    color: var(--labels-vibrant-primary-auto);
+    @keyframes editoptbuttonenter {
+      from {
+        opacity: 0;
+        transform: scale(0);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+    @keyframes editoptbuttonleave {
+      to {
+        opacity: 0;
+        transform: scale(0);
+      }
+      from {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    body.editmode & {
+      pointer-events: all;
+      animation: editoptbuttonenter 0.2s ease-in forwards;
+    }
+    body.exiteditmode & {
+      animation: editoptbuttonleave 0.2s ease-in;
+    }
+    &:active {
+      transition: 0s;
+      background: var(--materials-ultrathin-auto);
+      backdrop-filter: blur(10px) saturate(3);
+    }
+    transition: 0.5s;
+    font-size: 17px;
+    background: var(--materials-thin-auto);
+    backdrop-filter: blur(10px) saturate(2);
+    border: none;
+    box-sizing: border-box;
+    height: 25px;
+    width: 65px;
+    border-radius: 35px !important;
+  }
+}
+#page-indicator {
+  position: fixed;
+  left: 50%;
+  z-index: 999999999999999;
+  width: 74px;
+  height: 30px;
+  border-radius: 15px !important;
+  overflow: hidden;
+  transform: translateX(-50%);
+  bottom: calc(var(--window-inset-bottom) + 130px);
+  backdrop-filter: blur(50px) contrast(0.9) saturate(1.1) brightness(1.2);
+  transition: var(--jumpanim) 0.25s;
+  font-size: 12px;
+  display: table;
+  color: rgb(white, 0.9);
+  body.nestedDock & {
+    bottom: 105px;
+    backdrop-filter: none !important;
+  }
+  body.TABLET_VIEW & {
+    backdrop-filter: none !important;
+  }
+  &.show-pages > div.search {
+    opacity: 0;
+  }
+  div.search {
+    transition: 0.1s;
+    span {
+      padding-right: 3px;
+    }
+    p {
+      margin: 0px;
+    }
+    display: table-cell;
+    vertical-align: middle;
+    text-align: center;
+  }
+  &:active {
+    transform: translateX(-50%) scale(1.05);
+    backdrop-filter: blur(50px) contrast(0.9) saturate(1.1) brightness(1.5);
+  }
+  @media (prefers-color-scheme: dark) {
+    // Use dark mode styles
+    & {
+      backdrop-filter: blur(50px) contrast(0.9) saturate(1.1) brightness(0.83)
+        contrast(1.1);
+      &:active {
+        backdrop-filter: blur(50px) contrast(0.9) saturate(1.1) brightness(0.83)
+          contrast(1.1) brightness(1.5);
+      }
     }
   }
 }

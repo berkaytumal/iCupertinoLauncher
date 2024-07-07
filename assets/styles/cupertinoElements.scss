@@ -70,9 +70,8 @@ $material-presets: (
 /*APPICON*/
 .C_ELEMENT {
   &.APPICON {
-  
     body.iconsMoveTransition & {
-      transition: var(--softanim) 0.5s;
+      transition: var(--softanim) 0.25s;
     }
     z-index: 1;
     &.hold {
@@ -120,7 +119,6 @@ $material-presets: (
       background-size: 100% 100%;
       background-repeat: no-repeat;
       background-position: center;
-      box-shadow: 0px 0px 10px black;
       body:not(.editmode) &.active {
         filter: brightness(0.6);
         animation: iconhover 0.5s 0.1s ease-in forwards;
@@ -313,9 +311,11 @@ $material-presets: (
       */
     }
     &.movingClone {
-      transition: 0.25s var(--jump3anim);
+      transition: 0.25s cubic-bezier(0.075, 0.82, 0.165, 1);
       z-index: 999;
       pointer-events: none;
+      will-change: left, top;
+      transition: 0s !important;
       animation: none !important;
     }
     &.movemode,
