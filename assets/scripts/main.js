@@ -53,7 +53,6 @@ import springBoard from "./springBoardEvents.js";
 import BScroll from "better-scroll";
 import startUpSequence from "./libraries/startUpSequence.js";
 import easings from "../scripts/libraries/easings.js";
-import iconizer from "./libraries/iconizer.js"
 import { getDB, setDB, resetDB } from './libraries/indexedDBHelper.js';
 import { Spring, PageSlider as Slider } from './libraries/iCupertinoAnimationFramework.js';
 
@@ -523,13 +522,13 @@ window.finishLoading = function finishLoading() {
   }, 0);
 };
 async function initializeIcons() {
-  const db = await getDB();
-  window.icons = { "dsf": "dsklfgşnsa" };
+  window.icons = {};
 
-  if (db.iconpack) {
-    for (const [packageName, blob] of Object.entries(db.iconpack)) {
-      window.icons[packageName] = URL.createObjectURL(blob);
-    }
+  // Use raw icon URLs directly
+  if (window.allappsarchive) {
+    window.allappsarchive.forEach(app => {
+      window.icons[app.packageName] = Bridge.getDefaultAppIconURL(app.packageName);
+    });
   }
 }
 
@@ -615,38 +614,15 @@ startUpSequence([
   },
   (next) => {
     (async function () {
-      const db = await getDB();
-
-      if (db.iconpack) {
-
-      } else {
-        db.iconpack = {};
-        await setDB(db);
-      }
-
+      // Use raw images directly, no iconizer processing
       fetch(Bridge.getAppsURL())
         .then(resp => resp.json())
         .then(async (resp) => {
           window.allappsarchive = resp.apps;
-          const resicons = await iconizer(resp.apps.map(function (input) { return { packageName: input.packageName, icon: Bridge.getDefaultAppIconURL(input.packageName) } }));
-          console.log("rds", resicons);
-
-          if (Object.keys(resicons).length >= 0) {
-            console.log("kaydeditorum");
-
-            const oldlist = new Set(Object.entries(db.iconpack));
-            const newlist = new Set(Object.entries(resicons));
-
-            db.iconpack = Object.fromEntries(new Set([...oldlist, ...newlist]));
-            await setDB(db);
-          } else {
-            console.log("yeni öğe yok");
-          }
-
+          console.log("Using raw app icons");
           next();
         });
     })();
-
   },
   async (next) => {
     // When we begin, assume no images are loaded.

@@ -13,9 +13,11 @@ const cupertinoElements = {
         const apptag = Date.now() + "-" + Math.round(Math.random() * 1000)
         var icone = ""
         try {
-            icone = window.icons[packageName]
+            // Try to get from window.icons first, fallback to provided iconUrl or Bridge URL
+            icone = window.icons[packageName] || iconUrl || Bridge.getDefaultAppIconURL(packageName)
         } catch (error) {
-
+            // Fallback to provided iconUrl or Bridge URL
+            icone = iconUrl || Bridge.getDefaultAppIconURL(packageName)
         }
         return $.parseHTML(`
         <div class="C_ELEMENT APPICON" id="${apptag}" packageName="${packageName}">
