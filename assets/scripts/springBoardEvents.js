@@ -946,6 +946,7 @@ const springBoard = {
   },
   drawFakeBlur: {
     getTexture: function (rectangle, filter, scale, callback) {
+<<<<<<< HEAD
       const canvas = window.fakeBlurCanvas;
       const { width, height, x, y } = rectangle;
 
@@ -979,6 +980,51 @@ const springBoard = {
           if (blob) {
             callback(null, URL.createObjectURL(blob));
           } else {
+=======
+      var canvas = window.fakeBlurCanvas;
+
+      // Create a new canvas with the size of the rectangle
+      const newCanvas = document.createElement('canvas');
+      newCanvas.width = rectangle.width * scale;
+      newCanvas.height = rectangle.height * scale;
+      newCanvas.width = newCanvas.width <= 1 ? 2 : newCanvas.width;
+      newCanvas.height = newCanvas.height <= 1 ? 2 : newCanvas.height;
+      const newCtx = newCanvas.getContext('2d');
+      newCtx.filter = filter;
+
+      // Draw the rectangle from the original canvas onto the new canvas
+      newCtx.drawImage(
+        canvas,
+        rectangle.x, // source x
+        rectangle.y, // source y
+        rectangle.width, // source width
+        rectangle.height, // source height
+        0, // destination x
+        0, // destination y
+        rectangle.width * scale, // destination width
+        rectangle.height * scale // destination height
+      );
+      newCtx.filter = "none";
+
+      var imageData = newCtx.getImageData(0, 0, newCanvas.width, newCanvas.height);
+
+      // Loop through the image data and set all alpha values to 255
+      for (var i = 3; i < imageData.data.length; i += 4) {
+        imageData.data[i] = 255; // Set alpha value to 255
+      }
+
+      // Put the modified image data onto the second canvas
+      newCtx.putImageData(imageData, 0, 0);
+
+      newCanvas.toBlob((blob) => {
+        if (blob) {
+          const blobURL = URL.createObjectURL(blob);
+          if (callback && typeof callback === 'function') {
+            callback(null, blobURL);
+          }
+        } else {
+          if (callback && typeof callback === 'function') {
+>>>>>>> 0617b272405179b86222f7df36adc47596000e70
             callback(new Error('Failed to create blob'), null);
           }
         }
@@ -986,6 +1032,7 @@ const springBoard = {
     },
     applyToElement: function (element, filter, scale = 1, callback) {
       springBoard.drawFakeBlur.getTexture(element.getBoundingClientRect(), filter, scale, (e, blobURL) => {
+<<<<<<< HEAD
         if (blobURL) {
           $(element).css({
             "background-image": `url(${blobURL})`,
@@ -1017,6 +1064,31 @@ const springBoard = {
           }
         });
       });
+=======
+        $(element).css("background-image", `url(${blobURL})`).css("background-size", "100% 100%")
+      })
+    },
+    dock: function (callback) {
+      springBoard.drawFakeBlur.applyToElement(
+        $($("body").hasClass("nestedDock") ? "#dockBg" : "#dock")[0],
+        window.matchMedia('(prefers-color-scheme: dark)').matches ?
+          "blur(50px) contrast(0.9) saturate(1.1) brightness(0.83) contrast(1.1) " :
+          `blur(50px) contrast(0.75) brightness(${1 / 0.75})`
+        , callback
+      )
+
+
+    },
+    appUninstallIcon: function () {
+      // if (!window["inEditMode"]) return
+      requestAnimationFrame(function () {
+        $(`#pages > div:nth-child(${homeScroller.getCurrentPage().pageX + 1}) div.C_ELEMENT.APPICONDELETE`).each((index, element) => {
+
+          if (isElementInViewport(element)) springBoard.drawFakeBlur.applyToElement(element, window.matchMedia('(prefers-color-scheme: dark)').matches ? "blur(1px) contrast(0.5)  brightness(1.5)  saturate(1.5) brightness(0.85)" : "blur(1px) contrast(0.5)  brightness(1.5)  saturate(1.5)", .1)
+        })
+
+      })
+>>>>>>> 0617b272405179b86222f7df36adc47596000e70
     }
   },
   alert: function (title = "Alert!", message = "Message", actions = [{ title: "" }]) {

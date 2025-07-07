@@ -235,7 +235,11 @@ window.loadApps = function loadApps() {
       }
     })
     homeScroller.on("swipefinished", function (e) {
+<<<<<<< HEAD
       // console.log("swipe finished", e)
+=======
+     // console.log("swipe finished", e)
+>>>>>>> 0617b272405179b86222f7df36adc47596000e70
       $(homeScroller.target).removeClass("scrolling")
     })
 
@@ -263,7 +267,11 @@ window.loadApps = function loadApps() {
     window["homeScroller"] = homeScroller
     springBoard.relocateIcons();
     springBoard.relocateIconMovingSpots()
+<<<<<<< HEAD
 
+=======
+ 
+>>>>>>> 0617b272405179b86222f7df36adc47596000e70
     window["homeScroller"] = homeScroller;
 
     const bs = window["homeScroller"];
