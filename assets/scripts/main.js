@@ -268,7 +268,7 @@ window.loadApps = function loadApps() {
     const bs = window["homeScroller"];
     bs.on("scrollEnd", () => {
       $("body").removeClass("scrolling");
-      springBoard.drawFakeBlur.appUninstallIcon();
+      springBoard.appUninstallIcon();
       //  drawAppUninstallIconBG()
     });
 
@@ -439,9 +439,9 @@ $(window).on("load", function () {
   redrawWallpaperCache();
 
   $(window).on("resize", function () {
-    requestAnimationFrame(springBoard.drawFakeBlur.dock);
+    requestAnimationFrame(springBoard.dock);
   });
-  springBoard.drawFakeBlur.dock();
+  springBoard.dock();
 
 });
 
@@ -609,7 +609,7 @@ startUpSequence([
   },
   (next) => {
     redrawWallpaperCache()
-    springBoard.drawFakeBlur.dock();
+    springBoard.dock();
     next()
   },
   (next) => {

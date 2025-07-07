@@ -804,7 +804,13 @@ const springBoard = {
           backtransition(setupScroller.x)
           lastx = setupScroller.x < 0 ? setupScroller.x : 0
         })
-        springBoard.drawFakeBlur.applyToElement(c_usersetupview.parent()[0], "blur(3px) brightness(0.5)", .1, window.finishLoading)
+        // springBoard.drawFakeBlur.applyToElement(c_usersetupview.parent()[0], "blur(3px) brightness(0.5)", .1, window.finishLoading)
+        // Use CSS directly for blur if needed
+        $(c_usersetupview.parent()[0]).css({
+          "backdrop-filter": "blur(3px) brightness(0.5)",
+          "-webkit-backdrop-filter": "blur(3px) brightness(0.5)"
+        });
+        if (typeof window.finishLoading === 'function') window.finishLoading();
         c_usersetupview[0].helloRenderContext = c_usersetupview.children().eq(0).children("canvas.USERSETUPVIEWHELLO")[0].getContext("2d")
         var ctx = c_usersetupview[0].helloRenderContext
         var helloLocales = {}
@@ -944,80 +950,37 @@ const springBoard = {
     }
     window["inEditMode"] = false
   },
-  drawFakeBlur: {
-    getTexture: function (rectangle, filter, scale, callback) {
-      const canvas = window.fakeBlurCanvas;
-      const { width, height, x, y } = rectangle;
-
-      // Create new canvas with proper dimensions
-      const newCanvas = document.createElement('canvas');
-      const scaledWidth = Math.max(width * scale, 2);
-      const scaledHeight = Math.max(height * scale, 2);
-
-      newCanvas.width = scaledWidth;
-      newCanvas.height = scaledHeight;
-
-      const newCtx = newCanvas.getContext('2d');
-      newCtx.filter = filter;
-
-      // Draw and process image
-      newCtx.drawImage(canvas, x, y, width, height, 0, 0, scaledWidth, scaledHeight);
-      newCtx.filter = "none";
-
-      const imageData = newCtx.getImageData(0, 0, scaledWidth, scaledHeight);
-      const data = imageData.data;
-
-      // Set all alpha values to 255
-      for (let i = 3; i < data.length; i += 4) {
-        data[i] = 255;
-      }
-
-      newCtx.putImageData(imageData, 0, 0);
-
-      newCanvas.toBlob((blob) => {
-        if (callback && typeof callback === 'function') {
-          if (blob) {
-            callback(null, URL.createObjectURL(blob));
-          } else {
-            callback(new Error('Failed to create blob'), null);
-          }
-        }
-      });
-    },
-    applyToElement: function (element, filter, scale = 1, callback) {
-      springBoard.drawFakeBlur.getTexture(element.getBoundingClientRect(), filter, scale, (e, blobURL) => {
-        if (blobURL) {
+  dock: function (callback) {
+    const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const element = $($("body").hasClass("nestedDock") ? "#dockBg" : "#dock")[0];
+    // Use CSS backdrop-filter instead of canvas blur
+    $(element).css({
+      "backdrop-filter": isDark
+        ? "blur(50px) contrast(0.9) saturate(1.1) brightness(0.83) contrast(1.1)"
+        : "blur(50px) contrast(0.75) brightness(1.333)",
+      "-webkit-backdrop-filter": isDark
+        ? "blur(50px) contrast(0.9) saturate(1.1) brightness(0.83) contrast(1.1)"
+        : "blur(50px) contrast(0.75) brightness(1.333)",
+      "background-image": "none"
+    });
+    if (callback && typeof callback === 'function') callback();
+  },
+  appUninstallIcon: function () {
+    requestAnimationFrame(() => {
+      const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const filter = isDark
+        ? "blur(1px) contrast(0.5) brightness(1.275) saturate(1.5)"
+        : "blur(1px) contrast(0.5) brightness(1.5) saturate(1.5)";
+      $(`#pages > div:nth-child(${homeScroller.getCurrentPage().pageX + 1}) div.C_ELEMENT.APPICONDELETE`).each((index, element) => {
+        if (isElementInViewport(element)) {
           $(element).css({
-            "background-image": `url(${blobURL})`,
-            "background-size": "100% 100%"
+            "backdrop-filter": filter,
+            "-webkit-backdrop-filter": filter,
+            "background-image": "none"
           });
         }
-        if (callback && typeof callback === 'function') callback();
       });
-    },
-    dock: function (callback) {
-      const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      const element = $($("body").hasClass("nestedDock") ? "#dockBg" : "#dock")[0];
-      const filter = isDark ?
-        "blur(50px) contrast(0.9) saturate(1.1) brightness(0.83) contrast(1.1)" :
-        "blur(50px) contrast(0.75) brightness(1.333)";
-
-      springBoard.drawFakeBlur.applyToElement(element, filter, 1, callback);
-    },
-    appUninstallIcon: function () {
-      requestAnimationFrame(() => {
-        const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        const filter = isDark ?
-          "blur(1px) contrast(0.5) brightness(1.275) saturate(1.5)" :
-          "blur(1px) contrast(0.5) brightness(1.5) saturate(1.5)";
-
-        $(`#pages > div:nth-child(${homeScroller.getCurrentPage().pageX + 1}) div.C_ELEMENT.APPICONDELETE`).each((index, element) => {
-          if (isElementInViewport(element)) {
-            springBoard.drawFakeBlur.applyToElement(element, filter, 0.1);
-          }
-        });
-      });
-    }
+    });
   },
   alert: function (title = "Alert!", message = "Message", actions = [{ title: "" }]) {
     var items = ""
