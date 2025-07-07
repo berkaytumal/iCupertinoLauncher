@@ -1,0 +1,74 @@
+{
+  "en": {
+    "title": "English",
+    "actual_title": "English"
+  },
+  "es": {
+    "title": "Spanish",
+    "actual_title": "Español"
+  },
+  "zh": {
+    "title": "Chinese (Mandarin)",
+    "actual_title": "中文 (普通话)"
+  },
+  "hi": {
+    "title": "Hindi",
+    "actual_title": "हिन्दी"
+  },
+  "fr": {
+    "title": "French",
+    "actual_title": "Français"
+  },
+  "pt": {
+    "title": "Portuguese",
+    "actual_title": "Português"
+  },
+  "ru": {
+    "title": "Russian",
+    "actual_title": "Русский"
+  },
+  "de": {
+    "title": "German",
+    "actual_title": "Deutsch"
+  },
+  "ja": {
+    "title": "Japanese",
+    "actual_title": "日本語"
+  },
+  "bn": {
+    "title": "Bengali",
+    "actual_title": "বাংলা"
+  },
+  "pa": {
+    "title": "Punjabi",
+    "actual_title": "ਪੰਜਾਬੀ"
+  },
+  "id": {
+    "title": "Indonesian",
+    "actual_title": "Bahasa Indonesia"
+  },
+  "sw": {
+    "title": "Swahili",
+    "actual_title": "Kiswahili"
+  },
+  "tr": {
+    "title": "Turkish",
+    "actual_title": "Türkçe"
+  },
+  "ko": {
+    "title": "Korean",
+    "actual_title": "한국어"
+  },
+  "it": {
+    "title": "Italian",
+    "actual_title": "Italiano"
+  },
+  "ta": {
+    "title": "Tamil",
+    "actual_title": "தமிழ்"
+  },
+  "te": {
+    "title": "Telugu",
+    "actual_title": "తెలుగు"
+  }
+}

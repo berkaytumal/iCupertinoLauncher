@@ -1,0 +1,113 @@
+img {
+  text-indent: -10000px;
+}
+* {
+  touch-action: none;
+}
+body.squircle * {
+  border-radius: 0px !important;
+  --squircle-smooth: 0.3;
+}
+
+@import "colors.scss";
+@import "cupertinoElements.scss";
+@import "springBoardElements.scss";
+@import "../../node_modules/bootstrap/scss/bootstrap.scss";
+@font-face {
+  font-family: Inter;
+  src: url(fonts/Inter.ttf);
+}
+@font-face {
+  font-family: FlutterSFIcons;
+  src: url(fonts/sficonsets.ttf);
+}
+:root {
+  --basic-animation: 500ms ease-out;
+  --jumpanim: cubic-bezier(0.33, 1.27, 0.41, 1);
+  --jump2anim: cubic-bezier(0.3, 2, 0.4, 1);
+  --jump3anim: cubic-bezier(0.3, 1.5, 0.5, 1);
+  --softanim: cubic-bezier(0.2, 0.8, 0.45, 1);
+  --soft2anim: cubic-bezier(0.075, 0.82, 0.165, 1);
+}
+
+.hey {
+  .hey {
+    padding: auto;
+  }
+}
+html,
+body {
+  color-scheme: light dark;
+  position: fixed;
+  left: 0px;
+  top: 0px;
+  margin: 0px;
+  padding: 0px;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: black;
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif,
+    FlutterSFIcons;
+}
+#system_wallpaper {
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+#graphic2 {
+  background: black;
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  display: none;
+}
+*.noanim {
+  transition: all 0s !important;
+}
+
+#debugmenu {
+  transition: transform 0.5s cubic-bezier(0.075, 0.82, 0.165, 1),
+    background-color 0.5s, backdrop-filter 0.4s 0.1s, all 0.5s;
+  background: rgb(white, 0.5);
+  backdrop-filter: blur(20px);
+  position: fixed;
+  left: 10px;
+  top: calc(10px + var(--window-inset-top));
+  z-index: 999999;
+  padding: 20px;
+  border-radius: 20px !important;
+  max-width: calc(100vw - 20px);
+  box-shadow: 0px 10px 50px rgb(black, 0.5);
+  &.hidden {
+    transition: transform 0.5s cubic-bezier(0.075, 0.82, 0.165, 1),
+      background-color 0.5s, backdrop-filter 0.2s, all 0.5s;
+    box-shadow: 0px 0px 0px rgb(black, 0);
+
+    transform: translateX(calc(-100% - 20px + 25px));
+    backdrop-filter: none;
+    background: rgb(white, 0.75);
+    height: 150px;
+    overflow: hidden;
+  }
+}
+#spotlight {
+  pointer-events: none;
+  transition: 0s cubic-bezier(0.075, 0.82, 0.165, 1) ;
+  position: fixed;
+  z-index: 20;
+  left: 0px;
+  top: 0px;
+  width: 100%;
+  height: 100%;
+  --transition: 0;
+  backdrop-filter: blur(calc(var(--transition) * 30px));
+  .inner {
+    opacity: calc(pow(var(--transition), 2));
+  }
+}

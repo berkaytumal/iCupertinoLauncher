@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="/assets/style.css">
+    <script src="/node_modules/jquery/dist/jquery.min.js"></script>
+
+</head>
+
+<body class="nestedDock">
+    <div id="debugmenu" class="hidden" onclick="$('#debugmenu').removeClass('hidden')">
+        <h2>Debug Menu</h2>
+        <p id="bridgeprefix">Bridge Prefix:</p>
+        <button type="button" class="btn btn-primary" onclick="window.springBoard.animate.intro()">Animate
+            Intro</button>
+        <button type="button" class="btn btn-primary" onclick="springBoard.userSetupView.enter()">Enter OOBE</button>
+        <button type="button" class="btn btn-primary"
+            onclick="event.stopPropagation();event.preventDefault();$('#debugmenu').addClass('hidden')">Hide</button>
+        <button type="button" class="btn btn-primary" onclick="window.location.reload()">Respring</button>
+        <button type="button" class="btn btn-primary"
+            onclick="resetDB();localStorage.clear();window.location.reload()">Reset System</button>
+        <div>
+            <label for="customRange2" class="form-label">Display Zoom: 1</label>
+            <input type="range" class="form-range" min="0.5" max="3" step=".05" value="1" id="customRange2"
+                oninput="console.log('dfsgş');springBoard.changeZoom(this.value);$(this).prev('label').text('Display Zoom: ' + this.value)">
+        </div>
+        <button type="button" class="smbtn btn btn-primary"
+            onclick='homeScroller.scrolTo(0);window["scrollmethod"] = 0;$("button.smbtn").removeClass("btn-primary").addClass("btn-secondary").eq(0).removeClass("btn-secondary").addClass("btn-primary")'>sm0</button>
+
+        <button type="button" class="smbtn btn btn-secondary"
+            onclick='homeScroller.scrolTo(0);window["scrollmethod"] = 1;$("button.smbtn").removeClass("btn-primary").addClass("btn-secondary").eq(1).removeClass("btn-secondary").addClass("btn-primary")'>sm1</button>
+
+        <button type="button" class="smbtn btn btn-secondary"
+            onclick='homeScroller.scrolTo(0);window["scrollmethod"] = 2;$("button.smbtn").removeClass("btn-primary").addClass("btn-secondary").eq(2).removeClass("btn-secondary").addClass("btn-primary")'>sm2</button>
+
+
+    </div>
+    <style id="loaderstyle">
+        body {
+            background-color: black;
+        }
+
+        #loader {
+            position: fixed;
+            left: 0px;
+            top: 0px;
+            width: 100%;
+            height: 100%;
+            background-image: url(/assets/drawable/loader.webp);
+            background-size: 30px;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-color: black;
+            z-index: 999;
+        }
+
+        p.goodbye {
+            width: 200px;
+            position: absolute;
+            text-align: center;
+            left: 50%;
+            top: 47.5%;
+            transform: translate(-50%, -50%);
+            filter: opacity(0);
+            animation: goodbyeanim cubic-bezier(0.075, 0.82, 0.165, 1) .5s .5s forwards;
+        }
+
+        @keyframes goodbyeanim {
+            from {
+                transform: translate(-50%, -50%) scale(1.5);
+                filter: blur(20px) opacity(0);
+            }
+
+            to {
+                transform: translate(-50%, -50%) scale(1);
+                filter: blur(0px) opacity(1);
+            }
+        }
+    </style>
+    <div id="loader"></div>
+    <div id="innerapp">
+        <div id="top-buttons">
+            <button class="left"></button>
+            <button class="right">Options</button>
+        </div>
+        <div id="pages-wrapper" slider-role="slider-wrapper">
+            <div id="pages" slider-role="slider-pages"></div>
+        </div>
+        <div id="dock" class="M_ULTRATHINDARK MATERIAL"></div>
+        <div id="dockBg" class="M_ULTRATHINLIGHT MATERIAL"></div>
+
+        <div id="page-indicator">
+            <div class="search">
+                <p><span class="icon"></span>Search</p>
+            </div>
+
+        </div>
+        
+        <div id="spotlight">
+            <div class="inner">
+                SPOTLIGHT
+            </div>
+        </div>
+        <canvas id="appanimcanvas"></canvas>
+    </div>
+    <img id="system_wallpaper" src="assets/drawable/wallpaper/26.jpg">
+
+    <script src="/assets/script.js"></script>
+    <script src="node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
+</body>
+
+</html>
