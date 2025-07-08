@@ -922,7 +922,7 @@ const springBoard = {
 
     Bridge.requestSetStatusBarAppearance("hide")
     console.log("enterEditMode")
-    springBoard.drawFakeBlur.appUninstallIcon()
+    springBoard.appUninstallIcon()
     $("body").addClass("editmode")
     if (!window["inEditMode"]) window["lastsb"] = Bridge.getStatusBarAppearance()
     window["inEditMode"] = true
@@ -933,7 +933,7 @@ const springBoard = {
     }, 25000);
 
     setTimeout(() => {
-      springBoard.drawFakeBlur.appUninstallIcon()
+      springBoard.appUninstallIcon()
     }, 300);
   },
   exitEditMode: function () {
